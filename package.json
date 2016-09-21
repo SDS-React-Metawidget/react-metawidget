@@ -1,0 +1,22 @@
+{
+  "name": "react-metawidget",
+  "version": "1.0.0",
+  "description": "Metawidget exports to React",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently --kill-others \"npm run server\" \"npm run babel-watch\"",
+    "server": "node server.js",
+    "babel-watch": "babel files/react-metawidget.js --plugins transform-react-jsx --out-file files/react-metawidget-converted.js --watch"
+  },
+  "author": "TP",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "concurrently": "^2.2.0"
+  }
+}

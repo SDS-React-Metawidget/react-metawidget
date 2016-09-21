@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="metawidget-core.min.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			var person = {
+				name: "Homer Simpson",
+				age: 40,
+				retired: false
+			};
+		</script>
+	</head>
+	<body>
+		<form>
+			<div id="metawidget"></div>
+		</form>
+		<script type="text/javascript">
+			var mw = new metawidget.Metawidget( document.getElementById( 'metawidget' ), {
+				
+				inspector: new metawidget.inspector.CompositeInspector( [ new metawidget.inspector.PropertyTypeInspector(),
+					function( toInspect, type, names ) {
+							
+						return {
+							properties:{
+								name: {
+									required: true
+								},
+								notes: {
+									type: "string",
+									large: true
+								},
+								employer: {
+									type: "string",
+									section: "Work"
+								},
+								department: {
+									type: "string"
+								}
+							}
+						};
+					 } ] ),
+					
+				layout: new metawidget.layout.HeadingTagLayoutDecorator(
+					new metawidget.layout.TableLayout( { numberOfColumns: 2 } ))
+			} );		
+			mw.toInspect = person;
+			mw.buildWidgets();
+		</script>
+	</body>
+</html>
