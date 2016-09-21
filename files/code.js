@@ -6,6 +6,8 @@ var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
 				type:"string",
 				required:true,
 				placeholder:"Name",
+				checkValid: true,
+				max:10,
 			},
 			age: {
 				type:"number",
@@ -17,15 +19,15 @@ var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
 				type:"boolean",
 				//checked: true,
 			},
-			notes: {
-				type:"string",
-				placeholder:"Notes",
-				large:true,
-			},
 			colour: {
 				type:"color",
 				//Have to use value, not placeholder for colour input
 				value:"#4F6F1A",
+			},
+			notes: {
+				type:"string",
+				placeholder:"Notes",
+				large:true,
 			},
 			employer: {
 				type: "string",
@@ -35,7 +37,11 @@ var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
 			department: {
 				type: "string",
 				placeholder: "Department",
-			}
+			},
+			customerRating: {
+				type:"rating",
+				value:3,
+			},
 		},
 	}),
 	widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([
@@ -58,7 +64,8 @@ var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
 	
 	//Cannot use inbuilt metawidget.layout.HeadingTagLayoutDecorator, as ReactDOM.render
 	//doesnt want to render non-react elements (HtmlElement)
-	layout:	new ReactHeadingTagLayoutDecorator(new TableReactLayout({numberOfColumns: 2})),
+	layout: new metawidget.layout.HeadingTagLayoutDecorator(
+		new metawidget.layout.TableLayout( { numberOfColumns: 2 } ))
 });
 		
 mw.toInspect = {};

@@ -1,3 +1,4 @@
+var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
 
 //Entry field with label
 var InputField = React.createClass({
@@ -13,10 +14,23 @@ var InputField = React.createClass({
 	
 	//Handle change of value
 	onChange: function(event) {
-		this.setState({
-			value: event.target.value,
-			checked: event.target.checked,
-		});
+		var doit = true;
+		if(this.props["data-metawidgetAttributes"].checkValid)
+		{
+			for(var i = 0; i < disallow.length; i++)
+			{
+				if(event.target.value.includes(disallow[i] + ""))
+				{
+					doit = false;
+					break;
+				}
+			}
+		}
+		if(doit)
+			this.setState({
+				value: event.target.value,
+				checked: event.target.checked,
+			});
 	},
 	
 	render: function(){		
@@ -33,6 +47,7 @@ var InputField = React.createClass({
 						placeholder={this.props["data-metawidgetAttributes"].placeholder}
 						min={this.props["data-metawidgetAttributes"].min}
 						max={this.props["data-metawidgetAttributes"].max}
+						maxLength={this.props["data-metawidgetAttributes"].max}
 					/>;
 			
 		if(this.props.doLabel)
@@ -99,6 +114,7 @@ var LargeTextInputField = React.createClass({
 						placeholder={this.props["data-metawidgetAttributes"].placeholder}
 						min={this.props["data-metawidgetAttributes"].min}
 						max={this.props["data-metawidgetAttributes"].max}
+						maxLength={this.props["data-metawidgetAttributes"].max}
 					/>;
 			
 		if(this.props.doLabel)
@@ -135,105 +151,6 @@ var LargeTextInputField = React.createClass({
 	}
 });
 
-var ReactTable = React.createClass({
-	
-	render: function(){
-		var tr = [];
-		var temprow = [];
-		var inc = 0;
-		for(var component in this.props.children)
-		{
-			var comp = this.props.children[component];
-			var isWide = comp.props["data-metawidgetAttributes"] ? (comp.props["data-metawidgetAttributes"].wide || comp.props["data-metawidgetAttributes"].large) : false;
-			var required = comp.props["data-metawidgetAttributes"] ? (comp.props["data-metawidgetAttributes"].required) : false;
-			
-			if(isWide)
-			{
-				if(temprow.length != 0)
-				{
-					//Have to use slice to copy array, otherwise it would continue
-					//to be written to
-					tr.push(<tr key={tr.length}>{temprow.slice()}</tr>);
-					temprow.length = 0;
-				}
-			}
-			
-			//Add spaces to camelCase and make first letter capital
-			var fieldLabel = comp.props.label;
-			if(fieldLabel)
-			{
-				//http://stackoverflow.com/questions/5582228/insert-space-before-capital-letters
-				//Seperate camelCase field names
-				fieldLabel = fieldLabel.replace(/([A-Z])/g, ' $1').trim();
-				fieldLabel = fieldLabel[0].toUpperCase() + fieldLabel.slice(1);
-				
-				temprow.push(
-					<th key={inc + 0.1}>
-						<label htmlFor={comp.props.label}>{fieldLabel}</label>:
-					</th>);
-			}
-			var colspan = 1;
-			if(isWide)
-			{
-				colspan = this.props.numberOfColumns*3 - temprow.length;
-			}
-			temprow.push(<td colSpan={colspan} key={inc}>{comp}</td>);
-			if(!isWide || required)
-			{
-				//Blank <td> on other cells somehow makes the * cell width fit to the character
-				temprow.push(<td key={inc + 0.2}>{required ? "*" : ""}</td>);
-			}
-				
-			inc++;
-			
-			if(inc %this.props.numberOfColumns == 0 || isWide)
-			{
-				//Have to use slice to copy array, otherwise it would continue
-				//to be written to
-				tr.push(<tr key={tr.length}>{temprow.slice()}</tr>);
-				temprow.length = 0;
-				inc = 0;
-			}
-		}
-		if(temprow.length != 0)
-		{
-			tr.push(<tr key={tr.length}>{temprow.slice()}</tr>);
-		}
-		
-		return (
-			<table>
-				<tbody>
-					{tr}
-				</tbody>
-			</table>
-		);
-	}
-});
-
-/**
- * @class LayoutDecorator to decorate widgets from different sections using
- *        an HTML heading tag (i.e. <tt>h1</tt>, <tt>h2</tt> etc).
- */
-
-var ReactHeadingTagLayoutDecorator = function( config ) {
-
-	if ( ! ( this instanceof ReactHeadingTagLayoutDecorator ) ) {
-		throw new Error( 'Constructor called as a function' );
-	}
-
-	var _level = config !== undefined && config.level !== undefined ? config.level : 1;
-	
-	metawidget.layout.createFlatSectionLayoutDecorator( config, this, 'headingTagLayoutDecorator' );
-
-	this.addSectionWidget = function( section, level, attributes, container, mw ) {
-
-		var Element = "h"+(level+_level);
-		var h1 = <Element key={a++} data-metawidgetAttributes={{wide:true}}>{section}</Element>;
-
-		this.getDelegate().layoutWidget( h1, "property", {}, container, mw );
-	};
-}
-
 var ReactWidgetBuilder = function( config ) {
 
 		if ( ! ( this instanceof ReactWidgetBuilder ) ) {
@@ -262,117 +179,75 @@ var ReactWidgetBuilder = function( config ) {
 					label:attributes.name,
 					value:fieldValue,
 					"data-metawidgetAttributes":attributes,
-					key:a++,//Lazy unique key generation
 				};
+				var r = metawidget.util.createElement(mw, "div");
 				if(attributes.type === "string")
 				{
 					if(attributes.large)
 					{
-						return <LargeTextInputField 
+						ReactDOM.render(
+								<LargeTextInputField 
 									{...properties}
-								/>;
+								/>
+							, r);
 					}
 					else if(attributes.masked)
 					{
-						return <InputField 
+						ReactDOM.render(
+								<InputField 
 									{...properties}
 									type={"password"}
-								/>;
+								/>
+							, r);
 					}
 					else
 					{
-						return <InputField 
+						ReactDOM.render(
+								<InputField 
 									{...properties}
 									type={"text"}
-								/>;
+								/>
+							, r);
 					}
 				}
 				else if(attributes.type === "boolean")
 				{
-					return <InputField 
+					ReactDOM.render(
+							<InputField 
 								{...properties}
 								type={"checkbox"}
-							/>;
+							/>
+						, r);
 				}
 				else if(attributes.type === "color" || attributes.type === "colour")
-				{
-					return <InputField 
+				{	
+					ReactDOM.render(
+							<InputField 
 								{...properties}
 								type={"color"}
-							/>;
+							/>
+						, r);
 				}
 				else if(attributes.type === "number" ||
 					attributes.type === "integer" ||
 					attributes.type === "float")
 				{
-					return <InputField 
+					ReactDOM.render(
+							<InputField 
 								{...properties}
 								type={"number"}
-							/>;
+							/>
+						, r);
 				}
-				return <InputField {...properties}/>;
+				else if(attributes.type === "rating")
+				{	
+					ReactDOM.render(
+							<Rating 
+								{...properties}
+							/>
+						, r);
+				}
+				return r;
 			}
 		};
 	};
-	
-//Lazy unique key for each field
-//Requirement by React to render from array
-var a = 1;
-	
-var SimpleReactLayout = function(){
-	//Array of widget elements
-	//React then renders from this array
-	this.components = [];
-	
-	//Collate elements into array
-	this.layoutWidget = function(widget, elementName, attributes, container, mw) {
-		//console.log(widget);
-		if(React.isValidElement(widget))
-			this.components.push(widget);
-	};
-	
-	//Render out the array of fields/widgets
-	this.endContainerLayout = function(container, mw) {
-		ReactDOM.render(
-			//Have to surround with div, as there must be a main element for React
-			<div>
-				{this.components}
-			</div>
-		,container);
-	};
-}
-	
-	var bb = 0;
-var TableReactLayout = function(config){
-	//Array of widget elements
-	//React then renders from this array
-	this.components = [];
-	var _numberOfColumns = config !== undefined && config.numberOfColumns ? config.numberOfColumns : 1;
-	
-	//Collate elements into array
-	this.layoutWidget = function(widget, elementName, attributes, container, mw) {
-		//console.log(widget);
-		if(React.isValidElement(widget))
-			this.components.push(widget);
-		//Can be used to add raw html elements to the tree
-		//Does not follow formatting rules though
-		//since no information is known about the elements
-		/*
-		else
-		{
-			var span = <div dangerouslySetInnerHTML={{__html: widget.outerHTML}}/>;
-			this.components.push(span);
-		}
-		*/
-	};
-	
-	//Render out the array of fields/widgets
-	this.endContainerLayout = function(container, mw) {
-		ReactDOM.render(
-			//Have to surround with div, as there must be a main element for React
-			<ReactTable numberOfColumns={_numberOfColumns}>
-				{this.components}
-			</ReactTable>
-		,container);
-	};
-}

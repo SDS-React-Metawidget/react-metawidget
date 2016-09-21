@@ -5,9 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently --kill-others \"npm run server\" \"npm run babel-watch\"",
+    "start": "concurrently --kill-others \"npm run server\" \"npm run babel-watch\" \"npm run babel-watch2\"",
     "server": "node server.js",
-    "babel-watch": "babel files/react-metawidget.js --plugins transform-react-jsx --out-file files/react-metawidget-converted.js --watch"
+    "babel-watch": "babel files/react-metawidget.js --plugins transform-react-jsx --out-file files/react-metawidget-converted.js --watch",
+    "babel-watch2": "babel files/ratingWidget.js --plugins transform-react-jsx --out-file files/ratingWidget-converted.js --watch"
   },
   "author": "TP",
   "license": "ISC",
