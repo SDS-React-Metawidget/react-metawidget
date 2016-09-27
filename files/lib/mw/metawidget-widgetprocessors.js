@@ -86,7 +86,6 @@ var metawidget = metawidget || {};
 	metawidget.widgetprocessor.PlaceholderAttributeProcessor.prototype.processWidget = function( widget, elementName, attributes ) {
 
 		if ( attributes.placeholder !== undefined ) {
-			console.log(widget);
 			widget.setAttribute( 'placeholder', attributes.placeholder );
 		}
 

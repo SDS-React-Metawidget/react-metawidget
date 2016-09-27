@@ -15,6 +15,7 @@ var InputField = React.createClass({
     //Handle change of value
     onChange: function (event) {
         var doit = true;
+		//disallow invalid characters
         if (this.props["data-metawidgetAttributes"].checkValid) {
             for (var i = 0; i < disallow.length; i++) {
                 if (event.target.value.includes(disallow[i] + "")) {
@@ -31,6 +32,7 @@ var InputField = React.createClass({
     },
 
     render: function () {
+				
         /*Could use defaultValue instead of value + onChange + state
          But then you couldn't get the new value?*/
         var field = <input
@@ -39,37 +41,7 @@ var InputField = React.createClass({
             onChange={this.onChange}
             value={this.state.value}
             checked={this.state.checked}
-            required={this.props["data-metawidgetAttributes"].required}
-            placeholder={this.props["data-metawidgetAttributes"].placeholder}
-            min={this.props["data-metawidgetAttributes"].min}
-            max={this.props["data-metawidgetAttributes"].max}
-            maxLength={this.props["data-metawidgetAttributes"].max}
         />;
-
-        if (this.props.doLabel) {
-            var fieldLabel = this.props.label;
-            if (fieldLabel) {
-                //http://stackoverflow.com/questions/5582228/insert-space-before-capital-letters
-                //Seperate camelCase field names
-                fieldLabel = fieldLabel.replace(/([A-Z])/g, ' $1').trim();
-                fieldLabel = fieldLabel[0].toUpperCase() + fieldLabel.slice(1);
-
-                field = (
-                    <span>
-						<label htmlFor={fieldLabel}>{fieldLabel}: </label>
-                        {field}
-					</span>
-                );
-            }
-            else {
-                field = (
-                    <span>
-						<label htmlFor={this.props.label}>{this.props.label}: </label>
-                        {field}
-					</span>
-                );
-            }
-        }
 
         return (
             field
@@ -102,38 +74,10 @@ var LargeTextInputField = React.createClass({
             name={this.props.label}
             onChange={this.onChange}
             value={this.state.value}
-            required={this.props["data-metawidgetAttributes"].required}
-            placeholder={this.props["data-metawidgetAttributes"].placeholder}
-            maxLength={this.props["data-metawidgetAttributes"].max}
             cols=""
             rows=""
-            readonly=""
+            readOnly=""
         />;
-
-        if (this.props.doLabel) {
-            var fieldLabel = this.props.label;
-            if (fieldLabel) {
-                //http://stackoverflow.com/questions/5582228/insert-space-before-capital-letters
-                //Seperate camelCase field names
-                fieldLabel = fieldLabel.replace(/([A-Z])/g, ' $1').trim();
-                fieldLabel = fieldLabel[0].toUpperCase() + fieldLabel.slice(1);
-
-                field = (
-                    <span>
-						<label htmlFor={fieldLabel}>{fieldLabel}: </label>
-                        {field}
-					</span>
-                );
-            }
-            else {
-                field = (
-                    <span>
-						<label htmlFor={this.props.label}>{this.props.label}: </label>
-                        {field}
-					</span>
-                );
-            }
-        }
 
         return (
             field
@@ -141,94 +85,285 @@ var LargeTextInputField = React.createClass({
     }
 });
 
-var ReactWidgetBuilder = function (config) {
 
-    if (!( this instanceof ReactWidgetBuilder )) {
-        throw new Error('Constructor called as a function');
-    }
 
-    var doLabels = config !== undefined && config.doLabels !== undefined ? config.doLabels : true;
+// Metawidget ${project.version}
+//
+// This file is dual licensed under both the LGPL
+// (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
+// (http://www.eclipse.org/org/documents/epl-v10.php). As a
+// recipient of Metawidget, you may choose to receive it under either
+// the LGPL or the EPL.
+//
+// Commercial licenses are also available. See http://metawidget.org
+// for details.
 
-    this.buildWidget = function (elementName, attributes, mw) {
+/**
+ * @author <a href="http://kennardconsulting.com">Richard Kennard</a>
+ */
 
-        if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
-            return metawidget.util.createElement(mw, 'stub');
-        }
-        //console.log(attributes);
-        if (attributes.type) {
-            //This bit's copied from HtmlWidgetBuilder
-            //Gets the value of the field in the schema
-            //eg. name = Jerry Smith
-            var typeAndNames = metawidget.util.splitPath(mw.path);
-            var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
-            var fieldValue = toInspect[attributes.name] || attributes.value;
+var metawidget = metawidget || {};
 
-            var properties = {
-                doLabel: doLabels,
-                label: attributes.name,
-                value: fieldValue,
-                "data-metawidgetAttributes": attributes,
-            };
-            var r = metawidget.util.createElement(mw, "div");
-            if (attributes.type === "string") {
-                if (attributes.large) {
-                    ReactDOM.render(
-                        <LargeTextInputField
-                            {...properties}
-                        />
-                        , r);
-                }
-                else if (attributes.masked) {
-                    ReactDOM.render(
-                        <InputField
-                            {...properties}
-                            type={"password"}
-                        />
-                        , r);
-                }
-                else {
-                    ReactDOM.render(
-                        <InputField
-                            {...properties}
-                            type={"text"}
-                        />
-                        , r);
-                }
-            }
-            else if (attributes.type === "boolean") {
-                ReactDOM.render(
-                    <InputField
-                        {...properties}
-                        type={"checkbox"}
-                    />
-                    , r);
-            }
-            else if (attributes.type === "color" || attributes.type === "colour") {
-                ReactDOM.render(
-                    <InputField
-                        {...properties}
-                        type={"color"}
-                    />
-                    , r);
-            }
-            else if (attributes.type === "number" ||
-                attributes.type === "integer" ||
-                attributes.type === "float") {
-                ReactDOM.render(
-                    <InputField
-                        {...properties}
-                        type={"number"}
-                    />
-                    , r);
-            }
-            else if (attributes.type === "rating") {
-                ReactDOM.render(
-                    <Rating
-                        {...properties}
-                    />
-                    , r);
-            }
-            return r;
-        }
-    };
-};
+( function() {
+
+	'use strict';
+	
+	metawidget.react = metawidget.react || {}
+	
+	metawidget.react.ReactMetawidget = function(element, config) {
+		
+		if ( ! ( this instanceof metawidget.react.ReactMetawidget ) ) {
+			throw new Error( 'Constructor called as a function' );
+		}
+		
+		var _overriddenNodes = [];
+
+		while ( element.childNodes.length > 0 ) {
+			var childNode = element.childNodes[0];
+			element.removeChild( childNode );
+
+			if ( childNode.nodeType === 1 ) {
+				_overriddenNodes.push( childNode );
+			}
+		}
+		
+		var _pipeline = new metawidget.Pipeline(element);
+		
+		_pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
+		_pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder( [ new metawidget.widgetbuilder.OverriddenWidgetBuilder(), new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(),
+				new metawidget.react.widgetbuilder.ReactWidgetBuilder({doLabels:false}) ] );
+		_pipeline.widgetProcessors = [ new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(),
+				new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(),
+				new metawidget.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.widgetprocessor.MaxAttributeProcessor(),
+				new metawidget.widgetprocessor.MinAttributeProcessor(),	new metawidget.widgetprocessor.SimpleBindingProcessor() ];
+		_pipeline.layout = new metawidget.layout.HeadingTagLayoutDecorator( new metawidget.layout.TableLayout({numberOfColumns:2}) );
+		_pipeline.configure( config );
+	
+		this.inspect = function( toInspect, type, names ) {
+			return _pipeline.inspect( toInspect, type, names, this );
+		};
+
+		this.buildWidgets = function( inspectionResult ) {
+			// Defensive copy
+
+			this.overriddenNodes = [];
+
+			for ( var loop = 0, length = _overriddenNodes.length; loop < length; loop++ ) {
+				this.overriddenNodes.push( _overriddenNodes[loop].cloneNode( true ) );
+			}
+
+			// Inspect (if necessary)
+
+			if ( inspectionResult === undefined ) {
+
+				// Safeguard against improperly implementing:
+				// http://blog.kennardconsulting.com/2013/02/metawidget-and-rest.html
+
+				if ( arguments.length > 0 ) {
+					throw new Error( "Calling buildWidgets( undefined ) may cause infinite loop. Check your argument, or pass no arguments instead" );
+				}
+
+				var splitPath = metawidget.util.splitPath( this.path );
+				inspectionResult = _pipeline.inspect( this.toInspect, splitPath.type, splitPath.names, this );
+			}
+			
+			_pipeline.buildWidgets( inspectionResult, this );
+		};
+		
+		this.clearWidgets = function() {
+
+			var element = this.getElement();
+
+			while ( element.childNodes.length > 0 ) {
+				element.removeChild( element.childNodes[0] );
+			}
+		};
+		
+		this.getElement = function() {
+
+			return _pipeline.element;
+		};
+		
+		this.buildNestedMetawidget = function( attributes, config ) {
+
+			// Create a 'div' not a 'metawidget', because whilst it's up to the
+			// user what they want their top-level element to be, for browser
+			// compatibility we should stick with something benign for nested
+			// elements
+
+			var nestedWidget = metawidget.util.createElement( this, 'div' );
+
+			// Duck-type our 'pipeline' as the 'config' of the nested
+			// Metawidget. This neatly passes everything down, including a
+			// decremented 'maximumInspectionDepth'
+
+			var nestedMetawidget = new metawidget.react.ReactMetawidget( nestedWidget, [ _pipeline, config ] );
+			nestedMetawidget.toInspect = this.toInspect;
+			nestedMetawidget.path = metawidget.util.appendPath( attributes, this );
+			nestedMetawidget.readOnly = this.readOnly || metawidget.util.isTrueOrTrueString( attributes.readOnly );
+			nestedMetawidget.buildWidgets();
+
+			return nestedWidget;
+		};
+	}
+	
+	metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {}
+	
+	metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
+
+		if (!( this instanceof metawidget.react.widgetbuilder.ReactWidgetBuilder )) {
+			throw new Error('Constructor called as a function');
+		}
+
+		this.buildWidget = function (elementName, attributes, mw) {
+
+			if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
+				return metawidget.util.createElement(mw, 'stub');
+			}
+			//console.log(attributes);
+			if (attributes.type) {
+				//This bit's copied from HtmlWidgetBuilder
+				//Gets the value of the field in the schema
+				//eg. name = Jerry Smith
+				//var typeAndNames = metawidget.util.splitPath(mw.path);
+				//var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
+				//var fieldValue = toInspect[attributes.name] || attributes.value;
+
+				var properties = {
+					label: attributes.name,
+					//value: fieldValue,
+					"data-metawidgetAttributes": attributes,
+				};
+				//Map type thing like Jacob suggested
+				var arr = {
+					"string":[InputField,{type:"text"}],
+					"boolean":[InputField,{type:"checkbox"}],
+					
+					"color":[InputField,{type:"color"}],
+					"colour":[InputField,{type:"color"}],
+					
+					"number":[InputField,{type:"number"}],
+					"integer":[InputField,{type:"number"}],
+					"float":[InputField,{type:"number"}],
+					
+					"rating":[Rating],
+				};
+				var r = metawidget.util.createElement(mw, "div");
+				
+				var fromArr = arr[attributes.type];
+				if(fromArr)
+				{
+					var Type = fromArr[0];
+					var specificTypeProps = fromArr[1];
+					ReactDOM.render(
+								<Type
+									{...properties}
+									{...specificTypeProps}
+								/>
+								, r);
+					//Work out a way to use attributes in the map
+					//to check for large, masked etc
+					/*if (attributes.type === "string") {
+						if (attributes.large) {
+							ReactDOM.render(
+								<LargeTextInputField
+									{...properties}
+								/>
+								, r);
+						}
+						else if (attributes.masked) {
+							ReactDOM.render(
+								<Type
+									{...properties}
+									type={"password"}
+								/>
+								, r);
+						}
+						else {
+							ReactDOM.render(
+								<InputField
+									{...properties}
+									type={"text"}
+								/>
+								, r);
+						}
+					}*/
+					
+					//ReactDOM.render has to render to a single element, so
+					//extract the input field so it can go through widgetprocessors properly
+					//Ask richard if there's a way to add new widgets during the process
+					return r.childNodes[0];
+				}
+			}
+		};
+	};
+	
+	metawidget.widgetprocessor = metawidget.widgetprocessor || {};
+	metawidget.widgetprocessor.MaxLengthAttributeProcessor = function() {
+
+		if ( ! ( this instanceof metawidget.widgetprocessor.MaxLengthAttributeProcessor ) ) {
+			throw new Error( 'Constructor called as a function' );
+		}
+	};
+
+	metawidget.widgetprocessor.MaxLengthAttributeProcessor.prototype.processWidget = function( widget, elementName, attributes ) {
+
+		if ( attributes.maxLength !== undefined ) {
+			widget.setAttribute( 'maxLength', attributes.maxLength );
+		}
+
+		return widget;
+	};
+	
+	metawidget.widgetprocessor.MaxAttributeProcessor = function() {
+
+		if ( ! ( this instanceof metawidget.widgetprocessor.MaxAttributeProcessor ) ) {
+			throw new Error( 'Constructor called as a function' );
+		}
+	};
+
+	metawidget.widgetprocessor.MaxAttributeProcessor.prototype.processWidget = function( widget, elementName, attributes ) {
+
+		if ( attributes.max !== undefined ) {
+			widget.setAttribute( 'max', attributes.max );
+		}
+
+		return widget;
+	};
+	
+	metawidget.widgetprocessor.MinAttributeProcessor = function() {
+
+		if ( ! ( this instanceof metawidget.widgetprocessor.MinAttributeProcessor ) ) {
+			throw new Error( 'Constructor called as a function' );
+		}
+	};
+
+	metawidget.widgetprocessor.MinAttributeProcessor.prototype.processWidget = function( widget, elementName, attributes ) {
+
+		if ( attributes.min !== undefined ) {
+			widget.setAttribute( 'min', attributes.min );
+		}
+
+		return widget;
+	};
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

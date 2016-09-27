@@ -1,13 +1,11 @@
-
-var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
-	inspector: new metawidget.inspector.JsonSchemaInspector({
+var schema = {
 		properties: {
 			name: {
 				type:"string",
 				required:true,
 				placeholder:"Name",
 				checkValid: true,
-				max:10,
+				maxLength:10,
 			},
 			age: {
 				type:"number",
@@ -42,31 +40,36 @@ var mw = new metawidget.Metawidget(document.getElementById("metawidget"), {
 				type:"rating",
 				value:3,
 			},
+			nested: {
+				section: "Nested Testing",
+				properties: {
+					street: {
+						type:"string",
+						placeholder:"Street",
+						checkValid: true,
+						maxLength:10,
+					},
+					suburb: {
+						type:"string",
+						placeholder:"Suburb",
+						checkValid: true,
+						maxLength:10,
+					},
+					postcode: {
+						type:"number",
+						placeholder:"Suburb",
+						checkValid: true,
+						min:1,
+						max:9999,
+					},
+				},
+			},
 		},
-	}),
-	widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([
-		new metawidget.widgetbuilder.OverriddenWidgetBuilder(), 
-		new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(),
-		//Add React widget builder
-		new ReactWidgetBuilder({doLabels: false}),
-	]),
-	
-	widgetProcessors: [
-		//new metawidget.widgetprocessor.PlaceholderAttributeProcessor(),
-		//new metawidget.widgetprocessor.DisabledAttributeProcessor(),
-		function(widget, elementName, attributes, mw) {
-			//console.log(attributes);
-			//Further processing after building of React component
-			console.log(widget);
-			return widget;
-		}
-	],
-	
-	//Cannot use inbuilt metawidget.layout.HeadingTagLayoutDecorator, as ReactDOM.render
-	//doesnt want to render non-react elements (HtmlElement)
-	layout: new metawidget.layout.HeadingTagLayoutDecorator(
-		new metawidget.layout.TableLayout( { numberOfColumns: 2 } ))
-});
+	};
+
+var mw = new metawidget.react.ReactMetawidget(document.getElementById("metawidget"), {
+		inspector: new metawidget.inspector.JsonSchemaInspector(schema),
+	});
 		
-mw.toInspect = {};
+mw.toInspect = schema;
 mw.buildWidgets();
