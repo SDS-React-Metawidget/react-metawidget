@@ -10,7 +10,7 @@ var InputField = React.createClass({
 			//Works without || "", but complains about going from 'uncontrolled' value
 			//to 'controlled' value if props.value is initially undefined
 			value: this.props.value || "",
-			checked: this.props["data-metawidgetAttributes"].checked || false
+			checked: this.props.metawidgetAttributes.checked || false
 		};
 	},
 
@@ -18,7 +18,7 @@ var InputField = React.createClass({
 	onChange: function (event) {
 		var doit = true;
 		//disallow invalid characters
-		if (this.props["data-metawidgetAttributes"].checkValid) {
+		if (this.props.metawidgetAttributes.checkValid) {
 			for (var i = 0; i < disallow.length; i++) {
 				if (event.target.value.includes(disallow[i] + "")) {
 					doit = false;
@@ -79,6 +79,73 @@ var LargeTextInputField = React.createClass({
 		});
 
 		return field;
+	}
+});
+
+var Select = React.createClass({
+	render: function () {
+
+		var t = this;
+		var inc = 0;
+		var options = this.props.options.map(function (selectOption) {
+			return React.createElement(
+				"option",
+				{ key: inc++ },
+				selectOption
+			);
+		});
+
+		var field = React.createElement(
+			"select",
+			null,
+			options
+		);
+
+		return field;
+	}
+});
+
+var Radio = React.createClass({
+	render: function () {
+
+		var t = this;
+		var inc = 0;
+		var options = this.props.options.map(function (selectOption) {
+			return React.createElement(
+				"label",
+				{ key: inc++, className: "radio" },
+				React.createElement("input", { type: "radio", name: t.props.label }),
+				selectOption
+			);
+		});
+
+		var field = React.createElement(
+			"span",
+			null,
+			options
+		);
+
+		return field;
+	}
+});
+
+var ReactMetawidget = React.createClass({
+	getInitialState: function () {
+		return {
+			toInspect: this.props.toInspect,
+			config: this.props.config
+		};
+	},
+
+	render: function () {
+		return React.createElement("div", { ref: "metawidget" });
+	},
+
+	componentDidMount: function () {
+		var mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, this.state.config);
+
+		mw.toInspect = this.state.toInspect;
+		mw.buildWidgets();
 	}
 });
 
@@ -211,7 +278,7 @@ var metawidget = metawidget || {};
 			if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
 				return metawidget.util.createElement(mw, 'stub');
 			}
-			//console.log(attributes);
+
 			if (attributes.type) {
 				//This bit's copied from HtmlWidgetBuilder
 				//Gets the value of the field in the schema
@@ -223,7 +290,7 @@ var metawidget = metawidget || {};
 				var properties = {
 					label: attributes.name,
 					//value: fieldValue,
-					"data-metawidgetAttributes": attributes
+					metawidgetAttributes: attributes
 				};
 				//Map type thing like Jacob suggested
 				var arr = {
@@ -233,11 +300,14 @@ var metawidget = metawidget || {};
 					"color": [InputField, { type: "color" }],
 					"colour": [InputField, { type: "color" }],
 
+					"date": [InputField, { type: "date" }],
+					"time": [InputField, { type: "time" }],
+
 					"number": [InputField, { type: "number" }],
 					"integer": [InputField, { type: "number" }],
 					"float": [InputField, { type: "number" }],
 
-					"rating": [Rating]
+					"rating": [Rating, {}]
 				};
 				var r = metawidget.util.createElement(mw, "div");
 
@@ -277,6 +347,25 @@ var metawidget = metawidget || {};
 					//ReactDOM.render has to render to a single element, so
 					//extract the input field so it can go through widgetprocessors properly
 					//Ask richard if there's a way to add new widgets during the process
+					//or if it's just via nested that this is done
+					return r.childNodes[0];
+				}
+
+				if (attributes.type === 'boolean' && attributes.componentType === 'radio' && attributes['enum'] === undefined) {
+					attributes['enum'] = [true, false];
+					attributes['enumTitles'] = ['Yes', 'No'];
+				}
+
+				if (attributes["enum"] !== undefined) {
+					if (attributes.componentType !== "radio") {
+						ReactDOM.render(React.createElement(Select, _extends({}, properties, {
+							options: attributes["enum"]
+						})), r);
+					} else if (attributes.componentType == "radio") {
+						ReactDOM.render(React.createElement(Radio, _extends({}, properties, {
+							options: attributes["enum"]
+						})), r);
+					}
 					return r.childNodes[0];
 				}
 			}

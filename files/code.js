@@ -17,6 +17,12 @@ var schema = {
 				type:"boolean",
 				//checked: true,
 			},
+			birthday: {
+				type:"date",
+			},
+			birthtime: {
+				type:"time",
+			},
 			colour: {
 				type:"color",
 				//Have to use value, not placeholder for colour input
@@ -40,7 +46,7 @@ var schema = {
 				type:"rating",
 				value:3,
 			},
-			nested: {
+			nestedAddress: {
 				section: "Nested Testing",
 				properties: {
 					street: {
@@ -62,14 +68,19 @@ var schema = {
 						min:1,
 						max:9999,
 					},
+					state: {
+						type:"select",
+						componentType:"radio",
+						enum: ["NSW","VIC","QLD"]
+					},
 				},
 			},
 		},
 	};
 
-var mw = new metawidget.react.ReactMetawidget(document.getElementById("metawidget"), {
+ReactDOM.render(<ReactMetawidget
+	toInspect={schema}
+	config={{
 		inspector: new metawidget.inspector.JsonSchemaInspector(schema),
-	});
-		
-mw.toInspect = schema;
-mw.buildWidgets();
+	}}
+/>, document.getElementById("metawidget"))
