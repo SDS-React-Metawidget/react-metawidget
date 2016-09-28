@@ -1,4 +1,4 @@
-var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
+const disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
 
 //Entry field with label
 var InputField = React.createClass({
@@ -32,7 +32,7 @@ var InputField = React.createClass({
     },
 
     render: function () {
-				
+
         /*Could use defaultValue instead of value + onChange + state
          But then you couldn't get the new value?*/
         var field = <input
@@ -102,20 +102,20 @@ var LargeTextInputField = React.createClass({
  * @author <a href="http://kennardconsulting.com">Richard Kennard</a>
  */
 
-var metawidget = metawidget || {};
+const metawidget = metawidget || {};
 
 ( function() {
 
 	'use strict';
-	
+
 	metawidget.react = metawidget.react || {}
-	
+
 	metawidget.react.ReactMetawidget = function(element, config) {
-		
+
 		if ( ! ( this instanceof metawidget.react.ReactMetawidget ) ) {
 			throw new Error( 'Constructor called as a function' );
 		}
-		
+
 		var _overriddenNodes = [];
 
 		while ( element.childNodes.length > 0 ) {
@@ -126,9 +126,9 @@ var metawidget = metawidget || {};
 				_overriddenNodes.push( childNode );
 			}
 		}
-		
+
 		var _pipeline = new metawidget.Pipeline(element);
-		
+
 		_pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
 		_pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder( [ new metawidget.widgetbuilder.OverriddenWidgetBuilder(), new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(),
 				new metawidget.react.widgetbuilder.ReactWidgetBuilder({doLabels:false}) ] );
@@ -138,7 +138,7 @@ var metawidget = metawidget || {};
 				new metawidget.widgetprocessor.MinAttributeProcessor(),	new metawidget.widgetprocessor.SimpleBindingProcessor() ];
 		_pipeline.layout = new metawidget.layout.HeadingTagLayoutDecorator( new metawidget.layout.TableLayout({numberOfColumns:2}) );
 		_pipeline.configure( config );
-	
+
 		this.inspect = function( toInspect, type, names ) {
 			return _pipeline.inspect( toInspect, type, names, this );
 		};
@@ -166,10 +166,10 @@ var metawidget = metawidget || {};
 				var splitPath = metawidget.util.splitPath( this.path );
 				inspectionResult = _pipeline.inspect( this.toInspect, splitPath.type, splitPath.names, this );
 			}
-			
+
 			_pipeline.buildWidgets( inspectionResult, this );
 		};
-		
+
 		this.clearWidgets = function() {
 
 			var element = this.getElement();
@@ -178,12 +178,12 @@ var metawidget = metawidget || {};
 				element.removeChild( element.childNodes[0] );
 			}
 		};
-		
+
 		this.getElement = function() {
 
 			return _pipeline.element;
 		};
-		
+
 		this.buildNestedMetawidget = function( attributes, config ) {
 
 			// Create a 'div' not a 'metawidget', because whilst it's up to the
@@ -206,9 +206,9 @@ var metawidget = metawidget || {};
 			return nestedWidget;
 		};
 	}
-	
+
 	metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {}
-	
+
 	metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
 		if (!( this instanceof metawidget.react.widgetbuilder.ReactWidgetBuilder )) {
@@ -238,18 +238,18 @@ var metawidget = metawidget || {};
 				var arr = {
 					"string":[InputField,{type:"text"}],
 					"boolean":[InputField,{type:"checkbox"}],
-					
+
 					"color":[InputField,{type:"color"}],
 					"colour":[InputField,{type:"color"}],
-					
+
 					"number":[InputField,{type:"number"}],
 					"integer":[InputField,{type:"number"}],
 					"float":[InputField,{type:"number"}],
-					
+
 					"rating":[Rating],
 				};
 				var r = metawidget.util.createElement(mw, "div");
-				
+
 				var fromArr = arr[attributes.type];
 				if(fromArr)
 				{
@@ -288,7 +288,7 @@ var metawidget = metawidget || {};
 								, r);
 						}
 					}*/
-					
+
 					//ReactDOM.render has to render to a single element, so
 					//extract the input field so it can go through widgetprocessors properly
 					//Ask richard if there's a way to add new widgets during the process
@@ -297,7 +297,7 @@ var metawidget = metawidget || {};
 			}
 		};
 	};
-	
+
 	metawidget.widgetprocessor = metawidget.widgetprocessor || {};
 	metawidget.widgetprocessor.MaxLengthAttributeProcessor = function() {
 
@@ -314,7 +314,7 @@ var metawidget = metawidget || {};
 
 		return widget;
 	};
-	
+
 	metawidget.widgetprocessor.MaxAttributeProcessor = function() {
 
 		if ( ! ( this instanceof metawidget.widgetprocessor.MaxAttributeProcessor ) ) {
@@ -330,7 +330,7 @@ var metawidget = metawidget || {};
 
 		return widget;
 	};
-	
+
 	metawidget.widgetprocessor.MinAttributeProcessor = function() {
 
 		if ( ! ( this instanceof metawidget.widgetprocessor.MinAttributeProcessor ) ) {

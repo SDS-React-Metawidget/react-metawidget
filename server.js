@@ -1,5 +1,7 @@
-var express = require('express');
-var app = express();
+'use strict'
+
+const express = require('express');
+const app = express();
 
 app.use(express.static('files'));
 app.get('/', function (req, res) {
@@ -7,10 +9,10 @@ app.get('/', function (req, res) {
 	console.log(req.connection.remoteAddress);
 })
 
-var server = app.listen(7001, function () {
+const server = app.listen(7001, () => {
 
-	var host = server.address().address;
-	var port = server.address().port;
+	let host = server.address().address;
+	let port = server.address().port;
 
 	console.log("Example app listening at http://%s:%s", host, port);
 })

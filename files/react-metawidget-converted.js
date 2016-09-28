@@ -1,3 +1,5 @@
+"use strict";
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
@@ -5,7 +7,7 @@ var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
 //Entry field with label
 var InputField = React.createClass({
 	//Set default value
-	getInitialState: function () {
+	getInitialState: function getInitialState() {
 		return {
 			//Works without || "", but complains about going from 'uncontrolled' value
 			//to 'controlled' value if props.value is initially undefined
@@ -15,7 +17,7 @@ var InputField = React.createClass({
 	},
 
 	//Handle change of value
-	onChange: function (event) {
+	onChange: function onChange(event) {
 		var doit = true;
 		//disallow invalid characters
 		if (this.props["data-metawidgetAttributes"].checkValid) {
@@ -32,7 +34,7 @@ var InputField = React.createClass({
 		});
 	},
 
-	render: function () {
+	render: function render() {
 
 		/*Could use defaultValue instead of value + onChange + state
    But then you couldn't get the new value?*/
@@ -51,7 +53,7 @@ var InputField = React.createClass({
 //Entry field with label
 var LargeTextInputField = React.createClass({
 	//Set default value
-	getInitialState: function () {
+	getInitialState: function getInitialState() {
 		return {
 			//Works without || "", but complains about going from 'uncontrolled' value
 			//to 'controlled' value if props.value is initially undefined
@@ -60,13 +62,13 @@ var LargeTextInputField = React.createClass({
 	},
 
 	//Handle change of value
-	onChange: function (event) {
+	onChange: function onChange(event) {
 		this.setState({
 			value: event.target.value
 		});
 	},
 
-	render: function () {
+	render: function render() {
 		/*Could use defaultValue instead of value + onChange + state
    But then you couldn't get the new value?*/
 		var field = React.createElement("textarea", {
