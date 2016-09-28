@@ -14,17 +14,17 @@ var InputField = React.createClass({
 
     //Handle change of value
     onChange: function (event) {
-        var doit = true;
+        var change = true;
 		//disallow invalid characters
         if (this.props["data-metawidgetAttributes"].checkValid) {
             for (var i = 0; i < disallow.length; i++) {
                 if (event.target.value.includes(disallow[i] + "")) {
-                    doit = false;
+                    change = false;
                     break;
                 }
             }
         }
-        if (doit)
+        if (change)
             this.setState({
                 value: event.target.value,
                 checked: event.target.checked,
@@ -347,23 +347,3 @@ var metawidget = metawidget || {};
 		return widget;
 	};
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
