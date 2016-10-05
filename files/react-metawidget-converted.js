@@ -16,33 +16,27 @@ var InputField = React.createClass({
 
     //Handle change of value
     onChange: function (event) {
-        var change = true;
-        //disallow invalid characters
-        if (this.props.metawidgetAttributes.checkValid) {
-            for (var i = 0; i < disallow.length; i++) {
-                if (event.target.value.includes(disallow[i] + "")) {
-                    change = false;
-                    break;
-                }
-            }
-        }
-        if (change) this.setState({
+
+        this.setState({
             value: event.target.value,
             checked: event.target.checked
         });
+
+        if (this.props.callback && typeof this.props.callback === 'function') this.props.callback();
     },
 
     render: function () {
 
+        var pickedProps = { disabled: true };
         /*Could use defaultValue instead of value + onChange + state
          But then you couldn't get the new value?*/
-        var field = React.createElement("input", {
+        var field = React.createElement("input", _extends({
             name: this.props.label,
             type: this.props.type,
             onChange: this.onChange,
             value: this.state.value,
             checked: this.state.checked
-        });
+        }, pickedProps));
 
         return field;
     }
@@ -71,7 +65,7 @@ var TextAreaInput = React.createClass({
          But then you couldn't get the new value?*/
         var field = React.createElement("textarea", {
             name: this.props.label,
-            onChange: this.onChange,
+            onChange: this.props.callback,
             value: this.state.value,
             cols: "",
             rows: "",
@@ -362,11 +356,17 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             // };
             var r = metawidget.util.createElement(mw, "div");
 
+            /*this.props.callback = function(attributes.name) {
+                 attributes.name
+             };*/
+
             // var fromArr = arr[attributes.type];
             if (newType) {
                 var Type = newType[0];
                 var specificTypeProps = newType[1];
-                ReactDOM.render(React.createElement(Type, _extends({}, properties, specificTypeProps)), r);
+                var a = React.createElement(Type, _extends({}, properties, specificTypeProps));
+                console.log(a);
+                ReactDOM.render(a, r);
                 //Work out a way to use attributes in the map
                 //to check for large, masked etc
 
