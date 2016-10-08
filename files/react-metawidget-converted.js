@@ -1,6 +1,7 @@
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
+var DOMProperties = ["min", "max", "maxLength", "placeholder", "disabled", "id", "required"];
 
 //Entry field with label
 var InputField = React.createClass({
@@ -16,17 +17,7 @@ var InputField = React.createClass({
 
     //Handle change of value
     onChange: function (event) {
-        var change = true;
-        //disallow invalid characters
-        if (this.props.metawidgetAttributes.checkValid) {
-            for (var i = 0; i < disallow.length; i++) {
-                if (event.target.value.includes(disallow[i] + "")) {
-                    change = false;
-                    break;
-                }
-            }
-        }
-        if (change) this.setState({
+        this.setState({
             value: event.target.value,
             checked: event.target.checked
         });
@@ -34,15 +25,19 @@ var InputField = React.createClass({
 
     render: function () {
 
+        var pickedProps = {};
+        for (key in this.props) {
+            if (DOMProperties.includes(key)) pickedProps[key] = this.props[key];
+        }
         /*Could use defaultValue instead of value + onChange + state
          But then you couldn't get the new value?*/
-        var field = React.createElement("input", {
+        var field = React.createElement("input", _extends({
             name: this.props.label,
             type: this.props.type,
             onChange: this.onChange,
             value: this.state.value,
             checked: this.state.checked
-        });
+        }, pickedProps));
 
         return field;
     }
@@ -129,6 +124,18 @@ var Radio = React.createClass({
     }
 });
 
+var Output = React.createClass({
+    render: function () {
+        var field = React.createElement(
+            "output",
+            null,
+            value
+        );
+
+        return field;
+    }
+});
+
 var MetaWidget = React.createClass({
     getInitialState: function () {
         return {
@@ -175,8 +182,8 @@ metawidget.react.ReactMetawidget = function (element, config) {
     var _pipeline = new metawidget.Pipeline(element);
 
     _pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
-    _pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.widgetbuilder.OverriddenWidgetBuilder(), new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(), new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]);
-    _pipeline.widgetProcessors = [new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(), new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(), new metawidget.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.widgetprocessor.MaxAttributeProcessor(), new metawidget.widgetprocessor.MinAttributeProcessor(), new metawidget.widgetprocessor.SimpleBindingProcessor()];
+    _pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]);
+    _pipeline.widgetProcessors = [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ReactDOMRender()];
     _pipeline.layout = new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 }));
     _pipeline.configure(config);
 
@@ -248,6 +255,28 @@ metawidget.react.ReactMetawidget = function (element, config) {
     };
 };
 
+/*metawidget.react.layout = metawidget.react.layout || {};
+
+metawidget.react.layout.ReactDecorator = function (config) {
+
+    if (!( this instanceof metawidget.react.layout.ReactDecorator)) {
+        throw new Error('Constructor called as a function');
+    }
+	
+	this.layoutWidget = function( widget, elementName, attributes, container, mw ) {
+		
+			var r = metawidget.util.createElement(mw, "div");
+			console.log("This is a: ");
+			console.log(attributes);
+			console.log(widget);
+			ReactDOM.render(widget,r)
+			var ret = r.childNodes[0];
+			console.log(ret);
+			
+		//config.layoutWidget( widget, elementName, attributes, container, mw );
+	}
+}*/
+
 metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {};
 
 metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
@@ -261,6 +290,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
         if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
             return metawidget.util.createElement(mw, 'stub');
         }
+        //console.log(attributes);
 
         if (attributes.type) {
             //This bit's copied from HtmlWidgetBuilder
@@ -299,7 +329,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 },
                 color: {
                     parameters: {
-                        type: e => e === 'color'
+                        type: e => e === 'color' || e === 'colour'
                     },
                     result: [InputField, { type: 'color' }]
                 },
@@ -317,131 +347,183 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 },
                 number: {
                     parameters: {
-                        type: e => e === 'number'
+                        type: e => e === 'number' || e === 'integer' || e === 'float'
                     },
                     result: [InputField, { type: 'number' }]
+                },
+                booleanRadio: {
+                    parameters: {
+                        type: e => e === 'boolean',
+                        componentType: e => e === 'radio'
+                    },
+                    result: [Radio, { options: [true, false] }]
+                },
+                select: {
+                    parameters: {
+                        type: e => e === 'select',
+                        enum: e => e !== undefined
+                    },
+                    result: [Select, { options: attributes["enum"] }]
+                },
+                radio: {
+                    parameters: {
+                        componentType: e => e === 'radio'
+                    },
+                    result: [Radio, { options: attributes["enum"] }]
                 },
                 rating: {
                     parameters: {
                         type: e => e === 'rating'
                     },
                     result: [Rating, {}]
+                },
+                output: {
+                    parameters: {
+                        readOnly: e => e === true
+                    },
+                    result: [Output, {}]
                 }
             };
-
-            // alternate names for same elements
-            elements.colour = elements.color;
-            elements.integer = elements.number;
-            elements.float = elements.number;
 
             let newType = Object.keys(elements).reduce((prev, element) => {
                 for (let param in elements[element].parameters) {
                     if (!elements[element].parameters[param](attributes[param])) return prev;
                 }
                 return elements[element].result;
-            }, elements.textArea.result);
+            }, elements.textInput.result);
 
-            console.log(newType);
+            //console.log(newType)
 
-            //Map type thing like Jacob suggested
-            // var arr = {
-            //     "string": [InputField, {type: "text"}],
-            //     "boolean": [InputField, {type: "checkbox"}],
-            //
-            //     "color": [InputField, {type: "color"}],
-            //     "colour": [InputField, {type: "color"}],
-            //
-            //     "date": [InputField, {type: "date"}],
-            //     "time": [InputField, {type: "time"}],
-            //
-            //     "number": [InputField, {type: "number"}],
-            //     "integer": [InputField, {type: "number"}],
-            //     "float": [InputField, {type: "number"}],
-            //
-            //     "rating": [Rating, {}],
-            // };
-            var r = metawidget.util.createElement(mw, "div");
 
             // var fromArr = arr[attributes.type];
             if (newType) {
                 var Type = newType[0];
                 var specificTypeProps = newType[1];
-                ReactDOM.render(React.createElement(Type, _extends({}, properties, specificTypeProps)), r);
-                //Work out a way to use attributes in the map
-                //to check for large, masked etc
-
-                //ReactDOM.render has to render to a single element, so
-                //extract the input field so it can go through widgetprocessors properly
-                //Ask richard if there's a way to add new widgets during the process
-                //or if it's just via nested that this is done
-                return r.childNodes[0];
-            }
-
-            if (attributes.type === 'boolean' && attributes.componentType === 'radio' && attributes['enum'] === undefined) {
-                attributes['enum'] = [true, false];
-                attributes['enumTitles'] = ['Yes', 'No'];
-            }
-
-            if (attributes["enum"] !== undefined) {
-                if (attributes.componentType !== "radio") {
-                    ReactDOM.render(React.createElement(Select, _extends({}, properties, {
-                        options: attributes["enum"]
-                    })), r);
-                } else if (attributes.componentType == "radio") {
-                    ReactDOM.render(React.createElement(Radio, _extends({}, properties, {
-                        options: attributes["enum"]
-                    })), r);
-                }
-                return r.childNodes[0];
+                return React.createElement(Type, _extends({}, properties, specificTypeProps));
             }
         }
     };
 };
 
 metawidget.widgetprocessor = metawidget.widgetprocessor || {};
-metawidget.widgetprocessor.MaxLengthAttributeProcessor = function () {
+metawidget.react.widgetprocessor = metawidget.react.widgetprocessor || {};
 
-    if (!(this instanceof metawidget.widgetprocessor.MaxLengthAttributeProcessor)) {
+metawidget.react.widgetprocessor.ReactDOMRender = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.ReactDOMRender)) {
         throw new Error('Constructor called as a function');
     }
 };
+metawidget.react.widgetprocessor.ReactDOMRender.prototype.processWidget = function (widget, elementName, attributes, mw) {
 
-metawidget.widgetprocessor.MaxLengthAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+    if (React.isValidElement(widget)) {
+        var r = metawidget.util.createElement(mw, "div");
+        ReactDOM.render(widget, r);
+        return r.childNodes[0];
+    }
+    return widget;
+};
+
+metawidget.react.widgetprocessor.MaxLengthAttributeProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.MaxLengthAttributeProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+};
+metawidget.react.widgetprocessor.MaxLengthAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
 
     if (attributes.maxLength !== undefined) {
-        widget.setAttribute('maxLength', attributes.maxLength);
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { maxLength: attributes.maxLength });
     }
 
     return widget;
 };
 
-metawidget.widgetprocessor.MaxAttributeProcessor = function () {
+metawidget.react.widgetprocessor.MaxAttributeProcessor = function () {
 
-    if (!(this instanceof metawidget.widgetprocessor.MaxAttributeProcessor)) {
+    if (!(this instanceof metawidget.react.widgetprocessor.MaxAttributeProcessor)) {
         throw new Error('Constructor called as a function');
     }
 };
-
-metawidget.widgetprocessor.MaxAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+metawidget.react.widgetprocessor.MaxAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
 
     if (attributes.max !== undefined) {
-        widget.setAttribute('max', attributes.max);
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { max: attributes.max });
     }
 
     return widget;
 };
 
-metawidget.widgetprocessor.MinAttributeProcessor = function () {
+metawidget.react.widgetprocessor.MinAttributeProcessor = function () {
 
-    if (!(this instanceof metawidget.widgetprocessor.MinAttributeProcessor)) {
+    if (!(this instanceof metawidget.react.widgetprocessor.MinAttributeProcessor)) {
         throw new Error('Constructor called as a function');
     }
 };
-
-metawidget.widgetprocessor.MinAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+metawidget.react.widgetprocessor.MinAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
 
     if (attributes.min !== undefined) {
-        widget.setAttribute('min', attributes.min);
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { min: attributes.min });
+    }
+
+    return widget;
+};
+
+metawidget.react.widgetprocessor.DisabledAttributeProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.DisabledAttributeProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+};
+metawidget.react.widgetprocessor.DisabledAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+
+    if (attributes.disabled !== undefined) {
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { disabled: attributes.disabled });
+    }
+
+    return widget;
+};
+
+metawidget.react.widgetprocessor.PlaceholderAttributeProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.PlaceholderAttributeProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+};
+metawidget.react.widgetprocessor.PlaceholderAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+
+    if (attributes.placeholder !== undefined) {
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { placeholder: attributes.placeholder });
+    }
+
+    return widget;
+};
+
+metawidget.react.widgetprocessor.RequiredAttributeProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.RequiredAttributeProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+};
+metawidget.react.widgetprocessor.RequiredAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+
+    if (attributes.required !== undefined) {
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { required: attributes.required });
+    }
+
+    return widget;
+};
+
+metawidget.react.widgetprocessor.IdProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.IdProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+};
+metawidget.react.widgetprocessor.IdProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+
+    if (attributes.id !== undefined) {
+        if (React.isValidElement(widget)) return React.cloneElement(widget, { id: attributes.id });
     }
 
     return widget;

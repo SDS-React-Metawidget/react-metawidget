@@ -6,6 +6,7 @@ var schema = {
             placeholder: "Name",
             checkValid: true,
             maxLength: 10,
+			//readOnly:true
         },
         age: {
             type: "number",
@@ -69,17 +70,26 @@ var schema = {
                     max: 9999,
                 },
                 state: {
-                    type: "select",
+					type:"radio",
                     componentType: "radio",
-                    enum: ["NSW", "VIC", "QLD"]
+                    enum: ["NSW", "VIC", "QLD"],
                 },
+				ausResident: {
+					type:"boolean",
+				},
             },
         },
     },
 };
 
+var person = {
+				name: "Homer Simpson",
+				age: 40,
+				retired: false
+			};
+
 ReactDOM.render(<MetaWidget
-    toInspect={schema}
+    toInspect={{}}
     config={{
         inspector: new metawidget.inspector.JsonSchemaInspector(schema),
     }}
