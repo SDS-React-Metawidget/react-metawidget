@@ -26,7 +26,7 @@ var Rating = React.createClass({
 						style: { cursor: "pointer" } },
 					inner
 				),
-				" "
+				"\xA0"
 			));
 		}
 		return React.createElement(
