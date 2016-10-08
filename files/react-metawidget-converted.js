@@ -123,26 +123,6 @@ var Radio = React.createClass({
     }
 });
 
-var MetaWidget = React.createClass({
-    getInitialState: function () {
-        return {
-            toInspect: this.props.toInspect,
-            config: this.props.config
-        };
-    },
-
-    render: function () {
-        return React.createElement("div", { ref: "metawidget" });
-    },
-
-    componentDidMount: function () {
-        var mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, this.state.config);
-
-        mw.toInspect = this.state.toInspect;
-        mw.buildWidgets();
-    }
-});
-
 var metawidget = metawidget || {};
 
 'use strict';
@@ -167,11 +147,6 @@ metawidget.react.ReactMetawidget = function (element, config) {
     }
 
     var _pipeline = new metawidget.Pipeline(element);
-
-    _pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
-    _pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.widgetbuilder.OverriddenWidgetBuilder(), new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(), new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]);
-    _pipeline.widgetProcessors = [new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(), new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(), new metawidget.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.widgetprocessor.MaxAttributeProcessor(), new metawidget.widgetprocessor.MinAttributeProcessor(), new metawidget.widgetprocessor.SimpleBindingProcessor()];
-    _pipeline.layout = new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 }));
     _pipeline.configure(config);
 
     this.inspect = function (toInspect, type, names) {
@@ -257,16 +232,8 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
         }
 
         if (attributes.type) {
-            //This bit's copied from HtmlWidgetBuilder
-            //Gets the value of the field in the schema
-            //eg. name = Jerry Smith
-            //var typeAndNames = metawidget.util.splitPath(mw.path);
-            //var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
-            //var fieldValue = toInspect[attributes.name] || attributes.value;
-
             var properties = {
                 label: attributes.name,
-                //value: fieldValue,
                 metawidgetAttributes: attributes
             };
 
@@ -337,28 +304,11 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
             console.log(newType);
 
-            //Map type thing like Jacob suggested
-            // var arr = {
-            //     "string": [InputField, {type: "text"}],
-            //     "boolean": [InputField, {type: "checkbox"}],
-            //
-            //     "color": [InputField, {type: "color"}],
-            //     "colour": [InputField, {type: "color"}],
-            //
-            //     "date": [InputField, {type: "date"}],
-            //     "time": [InputField, {type: "time"}],
-            //
-            //     "number": [InputField, {type: "number"}],
-            //     "integer": [InputField, {type: "number"}],
-            //     "float": [InputField, {type: "number"}],
-            //
-            //     "rating": [Rating, {}],
-            // };
             var r = metawidget.util.createElement(mw, "div");
 
             /*this.props.callback = function(attributes.name) {
-                 attributes.name
-             };*/
+              attributes.name
+              };*/
 
             // var fromArr = arr[attributes.type];
             if (newType) {
@@ -446,3 +396,35 @@ metawidget.widgetprocessor.MinAttributeProcessor.prototype.processWidget = funct
 
     return widget;
 };
+
+var MetaWidget = React.createClass({
+    propTypes: {
+        inspector: React.PropTypes.object,
+        widgetBuilder: React.PropTypes.object
+    },
+
+    getDefaultProps: function () {
+        return {
+            inspector: new metawidget.inspector.PropertyTypeInspector(),
+            widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.widgetbuilder.OverriddenWidgetBuilder(), new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(), new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]),
+            widgetProcessors: [new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(), new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(), new metawidget.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.widgetprocessor.MaxAttributeProcessor(), new metawidget.widgetprocessor.MinAttributeProcessor(), new metawidget.widgetprocessor.SimpleBindingProcessor()],
+            layout: new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 }))
+        };
+    },
+
+    componentDidMount: function () {
+        this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, {
+            inspector: this.props.inspector,
+            widgetBuilder: this.props.widgetBuilder,
+            widgetProcessors: this.props.widgetProcessors,
+            layout: this.props.layout
+        });
+
+        if (this.props.toInspect) this.mw.toInspect = this.props.toInspect;
+        this.mw.buildWidgets();
+    },
+
+    render: function () {
+        return React.createElement("div", { ref: "metawidget" });
+    }
+});

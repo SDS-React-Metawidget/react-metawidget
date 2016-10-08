@@ -80,7 +80,13 @@ var schema = {
 
 ReactDOM.render(<MetaWidget
     toInspect={schema}
-    config={{
-        inspector: new metawidget.inspector.JsonSchemaInspector(schema),
-    }}
+    inspector={new metawidget.inspector.JsonSchemaInspector(schema)}
 />, document.getElementById("metawidget"))
+
+
+/*
+ inspectionResultProcessors:
+ widgetBuilder:
+ widgetProcessors:
+ layout:
+ */
