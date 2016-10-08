@@ -1,4 +1,3 @@
-var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
 var DOMProperties = ["min","max","maxLength","placeholder","disabled","id","required"];
 
 //Entry field with label
@@ -15,10 +14,14 @@ var InputField = React.createClass({
 
     //Handle change of value
     onChange: function (event) {
-		this.setState({
-			value: event.target.value,
-			checked: event.target.checked,
-		});
+
+        this.setState({
+            value: event.target.value,
+            checked: event.target.checked,
+        });
+
+        if (this.props.callback && typeof this.props.callback === 'function')
+            this.props.callback()
     },
 
     render: function () {
@@ -69,7 +72,7 @@ var TextAreaInput = React.createClass({
          But then you couldn't get the new value?*/
         var field = <textarea
             name={this.props.label}
-            onChange={this.onChange}
+            onChange={this.props.callback}
             value={this.state.value}
             cols=""
             rows=""
@@ -427,6 +430,12 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
             //console.log(newType)
 
+
+            /*this.props.callback = function(attributes.name) {
+
+                attributes.name
+
+            };*/
 
             // var fromArr = arr[attributes.type];
             if (newType) {

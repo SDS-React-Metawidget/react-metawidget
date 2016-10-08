@@ -1,6 +1,5 @@
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var disallow = "`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?";
 var DOMProperties = ["min", "max", "maxLength", "placeholder", "disabled", "id", "required"];
 
 //Entry field with label
@@ -17,10 +16,13 @@ var InputField = React.createClass({
 
     //Handle change of value
     onChange: function (event) {
+
         this.setState({
             value: event.target.value,
             checked: event.target.checked
         });
+
+        if (this.props.callback && typeof this.props.callback === 'function') this.props.callback();
     },
 
     render: function () {
@@ -66,7 +68,7 @@ var TextAreaInput = React.createClass({
          But then you couldn't get the new value?*/
         var field = React.createElement("textarea", {
             name: this.props.label,
-            onChange: this.onChange,
+            onChange: this.props.callback,
             value: this.state.value,
             cols: "",
             rows: "",
@@ -394,6 +396,10 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
             //console.log(newType)
 
+
+            /*this.props.callback = function(attributes.name) {
+                  attributes.name
+              };*/
 
             // var fromArr = arr[attributes.type];
             if (newType) {
