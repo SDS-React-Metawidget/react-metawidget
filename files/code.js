@@ -6,6 +6,8 @@ var schema = {
             placeholder: "Name",
             checkValid: true,
             maxLength: 10,
+            //readOnly:true,
+            value: "Jerry"
         },
         age: {
             type: "number",
@@ -52,36 +54,49 @@ var schema = {
                 street: {
                     type: "string",
                     placeholder: "Street",
-                    checkValid: true,
                     maxLength: 10,
                 },
                 suburb: {
                     type: "string",
                     placeholder: "Suburb",
-                    checkValid: true,
                     maxLength: 10,
                 },
                 postcode: {
                     type: "number",
-                    placeholder: "Suburb",
-                    checkValid: true,
+                    placeholder: "Postcode",
                     min: 1,
                     max: 9999,
                 },
                 state: {
                     type: "select",
                     componentType: "radio",
-                    enum: ["NSW", "VIC", "QLD"]
+                    enum: ["NSW", "VIC", "QLD"],
+                },
+                ausResident: {
+                    type: "boolean",
+                },
+                occupation: {
+                    type: "string",
+                    readOnly: true,
+                    value: "Plumber"
                 },
             },
         },
     },
 };
 
-ReactDOM.render(<MetaWidget
-    toInspect={schema}
-    inspector={new metawidget.inspector.JsonSchemaInspector(schema)}
-/>, document.getElementById("metawidget"))
+var person = {
+    name: "Homer Simpson",
+    age: 40,
+    retired: false
+};
+
+ReactDOM.render(
+    <MetaWidget
+        inspector={new metawidget.inspector.JsonSchemaInspector(schema)}
+    />,
+    document.getElementById("metawidget")
+)
 
 
 /*
