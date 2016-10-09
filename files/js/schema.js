@@ -1,3 +1,7 @@
+/**
+ * Created by alex on 9/10/2016.
+ */
+
 var schema = {
     properties: {
         name: {
@@ -91,17 +95,3 @@ var person = {
     retired: false
 };
 
-ReactDOM.render(
-    <MetaWidget
-        inspector={new metawidget.inspector.JsonSchemaInspector(schema)}
-    />,
-    document.getElementById("metawidget")
-)
-
-
-/*
- inspectionResultProcessors:
- widgetBuilder:
- widgetProcessors:
- layout:
- */

@@ -15,7 +15,7 @@ var Rating = React.createClass({
 		var arr = [];
 		for(var i = 1; i <= 5; i++)
 		{
-			var src = this.state.rating >= i ? "filledStar.png" : "emptyStar.png";
+			var src = this.state.rating >= i ? "img/filledStar.png" : "img/emptyStar.png";
 			var inner = <img src={src} width="20px"/>;
 			arr.push(<span key={i}>
 						<b data-value={i}

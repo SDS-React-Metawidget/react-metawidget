@@ -1,6 +1,6 @@
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt",
     "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge",
-    "charSet", /*"checked"*/, "cite", "classID", "className", "colSpan", "cols", "content", "contentEditable",
+    "charSet", "checked", "cite", "classID", "className", "colSpan", "cols", "content", "contentEditable",
     "contextMenu", "controls", "coords", "crossOrigin", "data", "dateTime", "default", "defer", "dir",
     "disabled", "download", "draggable", "encType", "form", "formAction", "formEncType", "formMethod",
     "formNoValidate", "formTarget", "frameBorder", "headers", "height", "hidden", "high", "href", "hrefLang",
@@ -10,74 +10,50 @@ var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFul
     "optimum", "pattern", "placeholder", "poster", "preload", "profile", "radioGroup", "readOnly", "rel",
     "required", "reversed", "role", "rowSpan", "rows", "sandbox", "scope", "scoped", "scrolling", "seamless",
     "selected", "shape", "size", "sizes", "span", "spellCheck", "src", "srcDoc", "srcLang", "srcSet", "start", "step",
-    "style", "summary", "tabIndex", "target", "title", "type", "useMap", /*"value"*/, "width", "wmode", "wrap"];
+    "style", "summary", "tabIndex", "target", "title", "type", "useMap", /*"value",*/ "width", "wmode", "wrap"];
 //Disallow "value" and "checked", as they are explicitly handled
 
 //Entry field with label
 var InputField = React.createClass({
-    //Set default value
-    getInitialState: function () {
-        return {
-            //Works without || "", but complains about going from 'uncontrolled' value
-            //to 'controlled' value if props.value is initially undefined
-            value: this.props.value || "",
-            checked: this.props.checked || false,
-        };
+    componentWillMount: function () {
+        this.checkValidProps(this.props)
     },
 
     //Handle change of value
-    onChange: function (event) {
-        this.setState({
-            value: event.target.value,
-            checked: event.target.checked,
-        });
-
+    onChange: function (e) {
         if (this.props.callback && typeof this.props.callback === 'function')
-            this.props.callback();
+            e.currentTarget.type === 'checkbox' ?
+                this.props.callback(e.currentTarget) : this.props.callback(e.currentTarget);
+    },
+
+    checkValidProps: function (props) {
+        this.validProps = {}
+
+        for (key in props) {
+            if (DOMProperties.includes(key))
+                this.validProps[key] = props[key];
+        }
+
     },
 
     render: function () {
-        var validProps = {};
-        for (key in this.props) {
-            if (DOMProperties.includes(key))
-                validProps[key] = this.props[key];
-        }
-
-        /*Could use defaultValue instead of value + onChange + state
-         But then you couldn't get the new value?*/
-        var field = <input
-            name={this.props.label}
-            onChange={this.onChange}
-            value={this.state.value}
-            checked={this.state.checked}
-            {...validProps}
-        />;
-
         return (
-            field
+            <input
+                name={this.props.label}
+                onChange={this.onChange}
+                defaultValue={this.props.value}
+                {...this.validProps}
+            />
         );
     }
 });
 
 //Entry field with label
 var TextAreaInput = React.createClass({
-    //Set default value
-    getInitialState: function () {
-        return {
-            //Works without || "", but complains about going from 'uncontrolled' value
-            //to 'controlled' value if props.value is initially undefined
-            value: this.props.value || ""
-        };
-    },
-
     //Handle change of value
-    onChange: function (event) {
-        this.setState({
-            value: event.target.value,
-        });
-
+    onChange: function (e) {
         if (this.props.callback && typeof this.props.callback === 'function')
-            this.props.callback();
+            this.props.callback(e.currentTarget.value);
     },
 
     render: function () {
@@ -87,72 +63,55 @@ var TextAreaInput = React.createClass({
                 validProps[key] = this.props[key];
         }
 
-        /*Could use defaultValue instead of value + onChange + state
-         But then you couldn't get the new value?*/
-        var field = <textarea
-            name={this.props.label}
-            onChange={this.onChange}
-            value={this.state.value}
-            {...validProps}
-        />;
-
         return (
-            field
+            <textarea
+                name={this.props.label}
+                onChange={this.onChange}
+                defaultValue={this.props.value}
+                {...validProps}
+            />
         );
     }
 });
 
 var Select = React.createClass({
     render: function () {
-
-        var t = this;
-        var inc = 0;
-        var options = this.props.options.map(function (selectOption) {
-            return <option key={inc++}>{selectOption}</option>;
+        var options = this.props.options.map(function (option, i) {
+            return <option key={i}>{option}</option>;
         });
 
-        var field = <select>
-            {options}
-        </select>;
-
         return (
-            field
+            <select>
+                {options}
+            </select>
         );
     }
 });
 
 var Radio = React.createClass({
     render: function () {
-
-        var t = this;
-        var inc = 0;
-        var options = this.props.options.map(function (selectOption) {
-            return <label key={inc++}>
-                <input type="radio" name={t.props.label}/>
-                {selectOption}
-            </label>
-        });
-
-        var field = <span>
-			{options}
-		</span>;
+        var options = this.props.options.map(function (option, i) {
+            return (
+                <label key={i}>
+                    <input type="radio" name={this.props.label}/> {option}
+                </label>
+            )
+        }, this);
 
         return (
-            field
+            <span>
+                {options}
+            </span>
         );
     }
 });
 
 var Output = React.createClass({
     render: function () {
-        var field = (
+        return (
             <output>
                 {this.props.value}
             </output>
-        )
-
-        return (
-            field
         );
     }
 });
@@ -182,6 +141,24 @@ metawidget.react.ReactMetawidget = function (element, config) {
 
     var _pipeline = new metawidget.Pipeline(element);
     _pipeline.configure(config);
+
+
+    /**
+     * Save the contents of the Metawidget using a SimpleBindingProcessor.
+     * <p>
+     * This is a convenience method. To access other Metawidget APIs,
+     * clients can use the 'getWidgetProcessor' method
+     *
+     * @returns true if the 'toInspect' was updated (i.e. is dirty)
+     */
+
+    this.save = function () {
+
+        return _pipeline.getWidgetProcessor(function (widgetProcessor) {
+
+            return widgetProcessor instanceof metawidget.widgetprocessor.SimpleBindingProcessor;
+        }).save(this);
+    };
 
     this.inspect = function (toInspect, type, names) {
         return _pipeline.inspect(toInspect, type, names, this);
@@ -264,14 +241,13 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
         if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
             return metawidget.util.createElement(mw, 'stub');
         }
-        //console.log(attributes);
 
         if (attributes.type) {
             var properties = {
                 label: attributes.name,
                 metawidgetAttributes: attributes,
-                callback: function () {
-                    console.log("CALLBACK TRIGGERED")
+                callback: function (target) {
+                    console.log(target)
                 },
             };
 
@@ -381,7 +357,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 }
             }
 
-            let newType = Object.keys(elements).reduce((prev, element) => {
+            let Element = Object.keys(elements).reduce((prev, element) => {
                 for (let param in elements[element].parameters) {
                     if (!elements[element].parameters[param](attributes[param]))
                         return prev
@@ -390,13 +366,15 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             }, elements.textInput.result)
 
             // var fromArr = arr[attributes.type];
-            if (newType) {
-                var Type = newType[0];
-                var specificTypeProps = newType[1];
-                return <Type
-                    {...properties}
-                    {...specificTypeProps}
-                />;
+            if (Element) {
+                var ElementType = Element[0];
+                var uniqueElementProps = Element[1];
+                return (
+                    <ElementType
+                        {...properties}
+                        {...uniqueElementProps}
+                    />
+                )
             }
         }
     };
@@ -584,7 +562,9 @@ metawidget.react.widgetprocessor.IdProcessor.prototype.processWidget = function 
 var MetaWidget = React.createClass({
     propTypes: {
         inspector: React.PropTypes.object,
-        widgetBuilder: React.PropTypes.object
+        widgetBuilder: React.PropTypes.object,
+        widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
+        layout: React.PropTypes.object
     },
 
     getDefaultProps: function () {
