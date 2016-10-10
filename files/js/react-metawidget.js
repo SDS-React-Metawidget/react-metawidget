@@ -40,7 +40,7 @@ var InputField = React.createClass({
         return (
             <input
                 name={this.props.label}
-                onChange={this.onChange}
+                onChange={this.props.handleChange}
                 defaultValue={this.props.value}
                 {...this.validProps}
             />
@@ -123,6 +123,8 @@ var metawidget = metawidget || {};
 metawidget.react = metawidget.react || {}
 
 metawidget.react.ReactMetawidget = function (element, config) {
+
+    console.log(element)
 
     if (!( this instanceof metawidget.react.ReactMetawidget )) {
         throw new Error('Constructor called as a function');
@@ -246,8 +248,8 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             var properties = {
                 label: attributes.name,
                 metawidgetAttributes: attributes,
-                callback: function (target) {
-                    console.log(target)
+                handleChange: function (event) {
+                    console.log(event, event.currentTarget, event._targetInst )
                 },
             };
 
@@ -427,12 +429,27 @@ metawidget.react.layout.ReactRenderDecorator = function (config) {
 metawidget.widgetprocessor = metawidget.widgetprocessor || {};
 metawidget.react.widgetprocessor = metawidget.react.widgetprocessor || {};
 
+metawidget.react.widgetprocessor.SimpleReactBindingProcessor = function () {
+    if ( ! ( this instanceof metawidget.react.widgetprocessor.SimpleReactBindingProcessor ) ) {
+        throw new Error( 'Constructor called as a function' );
+    }
+}
+
+metawidget.react.widgetprocessor.SimpleReactBindingProcessor.prototype.processWidget = function( widget, elementName, attributes ) {
+    if (attributes.handleChange && typeof attributes.handleChange === 'function')
+        if (React.isValidElement(widget))
+            widget = React.cloneElement(widget, {handleChange: attributes.handleChange})
+
+    return widget
+}
+
 metawidget.react.widgetprocessor.ValueAttributeProcessor = function () {
 
     if (!( this instanceof metawidget.react.widgetprocessor.ValueAttributeProcessor )) {
         throw new Error('Constructor called as a function');
     }
 };
+
 metawidget.react.widgetprocessor.ValueAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
 
     if (attributes.value !== undefined) {
@@ -587,7 +604,10 @@ var MetaWidget = React.createClass({
                 new metawidget.layout.HeadingTagLayoutDecorator(
                     new metawidget.layout.TableLayout({numberOfColumns: 2})
                 )
-            )
+            ),
+            handleChange: function (event) {
+                console.log(this, event)
+            }
         }
     },
 
@@ -607,6 +627,11 @@ var MetaWidget = React.createClass({
     },
 
     render: function () {
-        return <div ref="metawidget"/>
+        return (
+            <div
+                ref="metawidget"
+                onChange={this.handleChange}
+            />
+        )
     }
 });

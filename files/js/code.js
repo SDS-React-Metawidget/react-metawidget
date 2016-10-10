@@ -10,7 +10,7 @@ ReactDOM.render(
             new metawidget.react.widgetprocessor.MaxAttributeProcessor(),
             new metawidget.react.widgetprocessor.MinAttributeProcessor(),
             new metawidget.react.widgetprocessor.ValueAttributeProcessor(),
-            new metawidget.widgetprocessor.SimpleBindingProcessor()
+            new metawidget.react.widgetprocessor.SimpleReactBindingProcessor()
         ]}
     />,
     document.getElementById("metawidget")
