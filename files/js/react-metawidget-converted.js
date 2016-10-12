@@ -1,3 +1,5 @@
+'use strict';
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt", "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge", "charSet", "checked", "cite", "classID", "className", "colSpan", "cols", "content", "contentEditable", "contextMenu", "controls", "coords", "crossOrigin", "data", "dateTime", "default", "defer", "dir", "disabled", "download", "draggable", "encType", "form", "formAction", "formEncType", "formMethod", "formNoValidate", "formTarget", "frameBorder", "headers", "height", "hidden", "high", "href", "hrefLang", "htmlFor", "httpEquiv", "icon", "id", "inputMode", "integrity", "is", "keyParams", "keyType", "kind", "label", "lang", "list", "loop", "low", "manifest", "marginHeight", "marginWidth", "max", "maxLength", "media", "mediaGroup", "method", "min", "minLength", "multiple", "muted", "name", "noValidate", "nonce", "open", "optimum", "pattern", "placeholder", "poster", "preload", "profile", "radioGroup", "readOnly", "rel", "required", "reversed", "role", "rowSpan", "rows", "sandbox", "scope", "scoped", "scrolling", "seamless", "selected", "shape", "size", "sizes", "span", "spellCheck", "src", "srcDoc", "srcLang", "srcSet", "start", "step", "style", "summary", "tabIndex", "target", "title", "type", "useMap", /*"value",*/"width", "wmode", "wrap"];
@@ -17,7 +19,7 @@ var InputField = React.createClass({
     checkValidProps: function (props) {
         this.validProps = {};
 
-        for (key in props) {
+        for (let key in props) {
             if (DOMProperties.includes(key)) this.validProps[key] = props[key];
         }
     },
@@ -40,7 +42,7 @@ var TextAreaInput = React.createClass({
 
     render: function () {
         var validProps = {};
-        for (key in this.props) {
+        for (let key in this.props) {
             if (DOMProperties.includes(key)) validProps[key] = this.props[key];
         }
 
@@ -507,7 +509,7 @@ var MetaWidget = React.createClass({
     getDefaultProps: function () {
         return {
             inspector: new metawidget.inspector.PropertyTypeInspector(),
-            widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]),
+            widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder()]),
             widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
             layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
         };

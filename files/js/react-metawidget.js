@@ -1,3 +1,5 @@
+'use strict'
+
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt",
     "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge",
     "charSet", "checked", "cite", "classID", "className", "colSpan", "cols", "content", "contentEditable",
@@ -29,7 +31,7 @@ var InputField = React.createClass({
     checkValidProps: function (props) {
         this.validProps = {}
 
-        for (key in props) {
+        for (let key in props) {
             if (DOMProperties.includes(key))
                 this.validProps[key] = props[key];
         }
@@ -58,7 +60,7 @@ var TextAreaInput = React.createClass({
 
     render: function () {
         var validProps = {};
-        for (key in this.props) {
+        for (let key in this.props) {
             if (DOMProperties.includes(key))
                 validProps[key] = this.props[key];
         }
@@ -571,7 +573,7 @@ var MetaWidget = React.createClass({
         return {
             inspector: new metawidget.inspector.PropertyTypeInspector(),
             widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([
-                new metawidget.react.widgetbuilder.ReactWidgetBuilder({doLabels: false})
+                new metawidget.react.widgetbuilder.ReactWidgetBuilder()
             ]),
             widgetProcessors: [
                 new metawidget.react.widgetprocessor.IdProcessor(),
