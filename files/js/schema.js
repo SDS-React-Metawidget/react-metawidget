@@ -1,3 +1,7 @@
+/**
+ * Created by alex on 9/10/2016.
+ */
+
 var schema = {
     properties: {
         name: {
@@ -6,8 +10,8 @@ var schema = {
             placeholder: "Name",
             checkValid: true,
             maxLength: 10,
-			//readOnly:true,
-			value:"Jerry"
+            //readOnly:true,
+            value: "Jerry"
         },
         age: {
             type: "number",
@@ -68,30 +72,30 @@ var schema = {
                     max: 9999,
                 },
                 state: {
-					type:"select",
+                    type: "select",
                     componentType: "radio",
                     enum: ["NSW", "VIC", "QLD"],
                 },
-				ausResident: {
-					type:"boolean",
-				},
-				occupation: {
-					type:"string",
-					readOnly:true,
-					value:"Plumber"
-				},
+                ausResident: {
+                    type: "boolean",
+                },
+                occupation: {
+                    type: "string",
+                    readOnly: true,
+                    value: "Plumber"
+                },
             },
         },
     },
 };
 
 var person = {
-				/*name: "Homer Simpson",
+				name: "Homer Simpson",
 				email: "homer@nuclear.power.plant.com",
 				retired: false,
 				address: {street:"There St",
 						  suburb:"Dingbat",
 						  state:"NSW",
 						  postcode:5678,
-						  country:"Australia"}*/
-			};
+						  country:"Australia"}
+};

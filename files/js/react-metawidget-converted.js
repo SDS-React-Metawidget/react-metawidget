@@ -1,3 +1,5 @@
+'use strict';
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt", "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge", "charSet",, /*"checked"*/"cite", "classID", "className", "colSpan", "cols", "content", "contentEditable", "contextMenu", "controls", "coords", "crossOrigin", "data", "dateTime", "default", "defer", "dir", "disabled", "download", "draggable", "encType", "form", "formAction", "formEncType", "formMethod", "formNoValidate", "formTarget", "frameBorder", "headers", "height", "hidden", "high", "href", "hrefLang", "htmlFor", "httpEquiv", "icon", "id", "inputMode", "integrity", "is", "keyParams", "keyType", "kind", "label", "lang", "list", "loop", "low", "manifest", "marginHeight", "marginWidth", "max", "maxLength", "media", "mediaGroup", "method", "min", "minLength", "multiple", "muted", "name", "noValidate", "nonce", "open", "optimum", "pattern", "placeholder", "poster", "preload", "profile", "radioGroup", "readOnly", "rel", "required", "reversed", "role", "rowSpan", "rows", "sandbox", "scope", "scoped", "scrolling", "seamless", "selected", "shape", "size", "sizes", "span", "spellCheck", "src", "srcDoc", "srcLang", "srcSet", "start", "step", "style", "summary", "tabIndex", "target", "title", "type", "useMap",, /*"value"*/"width", "wmode", "wrap"];
@@ -10,11 +12,12 @@ var dontCheckEvents = ["onChange"];
 
 //Entry field with label
 var InputField = React.createClass({
-    //Set default value
+    componentWillMount: function () {
+        this.checkValidProps(this.props);
+    },
+
     getInitialState: function () {
         return {
-            //Works without || "", but complains about going from 'uncontrolled' value
-            //to 'controlled' value if props.value is initially undefined
             value: this.props.value || "",
             checked: this.props.checked || false
         };
@@ -30,36 +33,36 @@ var InputField = React.createClass({
         if (this.props.onChange) this.props.onChange(event);
     },
 
-    render: function () {
-        var validProps = {};
-        var validEvents = {};
-        for (key in this.props) {
+    checkValidProps: function (props) {
+        this.validProps = {};
+        this.validEvents = {};
+
+        for (let key in this.props) {
             if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
-                if (DOMProperties.includes(key)) validProps[key] = this.props[key];
-                if (DOMEvents.includes(key)) validEvents[key] = this.props[key];else validProps["data-" + key] = this.props[key];
+                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];
+                if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
             }
         }
+    },
 
-        /*Could use defaultValue instead of value + onChange + state
-         But then you couldn't get the new value?*/
-        var field = React.createElement("input", _extends({
+    render: function () {
+        return React.createElement("input", _extends({
             name: this.props.label,
             onChange: this.onChange,
             value: this.state.value,
             checked: this.state.checked
-        }, validProps, validEvents));
-
-        return field;
+        }, this.validProps, this.validEvents));
     }
 });
 
 //Entry field with label
 var TextAreaInput = React.createClass({
-    //Set default value
+    componentWillMount: function () {
+        this.checkValidProps(this.props);
+    },
+
     getInitialState: function () {
         return {
-            //Works without || "", but complains about going from 'uncontrolled' value
-            //to 'controlled' value if props.value is initially undefined
             value: this.props.value || ""
         };
     },
@@ -73,104 +76,72 @@ var TextAreaInput = React.createClass({
         if (this.props.onChange) this.props.onChange(event);
     },
 
-    render: function () {
-        var validProps = {};
-        var validEvents = {};
-        for (key in this.props) {
+    checkValidProps: function (props) {
+        this.validProps = {};
+        this.validEvents = {};
+
+        for (let key in this.props) {
             if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
-                if (DOMProperties.includes(key)) validProps[key] = this.props[key];
-                if (DOMEvents.includes(key)) validEvents[key] = this.props[key];else validProps["data-" + key] = this.props[key];
+                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];
+                if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
             }
         }
+    },
 
-        /*Could use defaultValue instead of value + onChange + state
-         But then you couldn't get the new value?*/
-        var field = React.createElement("textarea", _extends({
+    render: function () {
+        return React.createElement("textarea", _extends({
             name: this.props.label,
             onChange: this.onChange,
             value: this.state.value
-        }, validProps, validEvents));
-
-        return field;
+        }, this.validProps, this.validEvents));
     }
 });
 
 var Select = React.createClass({
     render: function () {
-
-        var t = this;
-        var inc = 0;
-        var options = this.props.options.map(function (selectOption) {
+        var options = this.props.options.map(function (option, i) {
             return React.createElement(
                 "option",
-                { key: inc++ },
-                selectOption
+                { key: i },
+                option
             );
         });
 
-        var field = React.createElement(
+        return React.createElement(
             "select",
             null,
             options
         );
-
-        return field;
     }
 });
 
 var Radio = React.createClass({
     render: function () {
-
-        var t = this;
-        var inc = 0;
-        var options = this.props.options.map(function (selectOption) {
+        var options = this.props.options.map(function (option, i) {
             return React.createElement(
                 "label",
-                { key: inc++ },
-                React.createElement("input", { type: "radio", name: t.props.label }),
-                selectOption
+                { key: i },
+                React.createElement("input", { type: "radio", name: this.props.label }),
+                " ",
+                option
             );
-        });
+        }, this);
 
-        var field = React.createElement(
+        return React.createElement(
             "span",
             null,
             options
         );
-
-        return field;
     }
 });
 
 var Output = React.createClass({
     render: function () {
-        var field = React.createElement(
+        return React.createElement(
             "output",
             null,
             this.props.value
         );
-
-        return field;
-    }
-});
-
-var MetaWidget = React.createClass({
-    getInitialState: function () {
-        return {
-            toInspect: this.props.toInspect,
-            config: this.props.config
-        };
-    },
-
-    render: function () {
-        return React.createElement("div", { ref: "metawidget" });
-    },
-
-    componentDidMount: function () {
-        var mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, this.state.config);
-
-        mw.toInspect = this.state.toInspect;
-        mw.buildWidgets();
     }
 });
 
@@ -198,11 +169,6 @@ metawidget.react.ReactMetawidget = function (element, config) {
     }
 
     var _pipeline = new metawidget.Pipeline(element);
-
-    _pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
-    _pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]);
-    _pipeline.widgetProcessors = [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor(), new metawidget.react.widgetprocessor.ReactBindingProcessor()];
-    _pipeline.layout = new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })));
     _pipeline.configure(config);
 
     this.inspect = function (toInspect, type, names) {
@@ -302,16 +268,8 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
         if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
             return metawidget.util.createElement(mw, 'stub');
         }
-        //console.log(attributes);
 
         if (attributes.type) {
-            //This bit's copied from HtmlWidgetBuilder
-            //Gets the value of the field in the schema
-            //eg. name = Jerry Smith
-            //var typeAndNames = metawidget.util.splitPath(mw.path);
-            //var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
-            //var fieldValue = toInspect[attributes.name] || attributes.value;
-
             var properties = {
                 label: attributes.name,
                 metawidgetAttributes: attributes
@@ -396,7 +354,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 }
             };
 
-            let newType = Object.keys(elements).reduce((prev, element) => {
+            let Element = Object.keys(elements).reduce((prev, element) => {
                 for (let param in elements[element].parameters) {
                     if (!elements[element].parameters[param](attributes[param])) return prev;
                 }
@@ -404,10 +362,10 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             }, elements.textInput.result);
 
             // var fromArr = arr[attributes.type];
-            if (newType) {
-                var Type = newType[0];
-                var specificTypeProps = newType[1];
-                return React.createElement(Type, _extends({}, properties, specificTypeProps));
+            if (Element) {
+                var ElementType = Element[0];
+                var uniqueElementProps = Element[1];
+                return React.createElement(ElementType, _extends({}, properties, uniqueElementProps));
             }
         }
     };
@@ -645,3 +603,38 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function
     console.log(mw.toInspect);
     return true;
 };
+
+var MetaWidget = React.createClass({
+    propTypes: {
+        inspector: React.PropTypes.object,
+        widgetBuilder: React.PropTypes.object,
+        widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
+        layout: React.PropTypes.object
+    },
+
+    getDefaultProps: function () {
+        return {
+            toInspect: {},
+            inspector: new metawidget.inspector.PropertyTypeInspector(),
+            widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder()]),
+            widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
+            layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
+        };
+    },
+
+    componentDidMount: function () {
+        this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, {
+            inspector: this.props.inspector,
+            widgetBuilder: this.props.widgetBuilder,
+            widgetProcessors: this.props.widgetProcessors,
+            layout: this.props.layout
+        });
+        this.mw.toInspect = this.props.toInspect;
+
+        this.mw.buildWidgets();
+    },
+
+    render: function () {
+        return React.createElement("div", { ref: "metawidget" });
+    }
+});
