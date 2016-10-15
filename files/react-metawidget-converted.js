@@ -2,6 +2,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt", "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge", "charSet",, /*"checked"*/"cite", "classID", "className", "colSpan", "cols", "content", "contentEditable", "contextMenu", "controls", "coords", "crossOrigin", "data", "dateTime", "default", "defer", "dir", "disabled", "download", "draggable", "encType", "form", "formAction", "formEncType", "formMethod", "formNoValidate", "formTarget", "frameBorder", "headers", "height", "hidden", "high", "href", "hrefLang", "htmlFor", "httpEquiv", "icon", "id", "inputMode", "integrity", "is", "keyParams", "keyType", "kind", "label", "lang", "list", "loop", "low", "manifest", "marginHeight", "marginWidth", "max", "maxLength", "media", "mediaGroup", "method", "min", "minLength", "multiple", "muted", "name", "noValidate", "nonce", "open", "optimum", "pattern", "placeholder", "poster", "preload", "profile", "radioGroup", "readOnly", "rel", "required", "reversed", "role", "rowSpan", "rows", "sandbox", "scope", "scoped", "scrolling", "seamless", "selected", "shape", "size", "sizes", "span", "spellCheck", "src", "srcDoc", "srcLang", "srcSet", "start", "step", "style", "summary", "tabIndex", "target", "title", "type", "useMap",, /*"value"*/"width", "wmode", "wrap"];
 //Disallow "value" and "checked", as they are explicitly handled
+var dontCheckProperties = ["checked", "value"];
+
+var DOMEvents = ["onCopy", "onCut", "onPaste", "onCompositionEnd", "onCompositionStart", "onCompositionUpdate", "onKeyDown", "onKeyPress", "onKeyUp", "onFocus", "onBlur",, /*"onChange"*/"onInput", "onSubmit", "onClick", "onContextMenu", "onDoubleClick", "onDrag", "onDragEnd", "onDragEnter", "onDragExit", "onDragLeave", "onDragOver", "onDragStart", "onDrop", "onMouseDown", "onMouseEnter", "onMouseLeave	onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onTouchCancel", "onTouchEnd", "onTouchMove", "onTouchStart", "onScroll", "onWheel", "onAbort", "onCanPlay", "onCanPlayThrough", "onDurationChange", "onEmptied", "onEncrypted", "onEnded", "onError", "onLoadedData", "onLoadedMetadata", "onLoadStart", "onPause", "onPlay", "onPlaying", "onProgress", "onRateChange", "onSeeked", "onSeeking", "onStalled", "onSuspend", "onTimeUpdate", "onVolumeChange", "onWaiting", "onLoad", "onError", "onAnimationStart", "onAnimationEnd", "onAnimationIteration", "onTransitionEnd"];
+//Disallow "onChange" as it is explicitly handled
+var dontCheckEvents = ["onChange"];
 
 //Entry field with label
 var InputField = React.createClass({
@@ -22,13 +27,17 @@ var InputField = React.createClass({
             checked: event.target.checked
         });
 
-        if (this.props.callback && typeof this.props.callback === 'function') this.props.callback();
+        if (this.props.onChange) this.props.onChange(event);
     },
 
     render: function () {
         var validProps = {};
+        var validEvents = {};
         for (key in this.props) {
-            if (DOMProperties.includes(key)) validProps[key] = this.props[key];
+            if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
+                if (DOMProperties.includes(key)) validProps[key] = this.props[key];
+                if (DOMEvents.includes(key)) validEvents[key] = this.props[key];else validProps["data-" + key] = this.props[key];
+            }
         }
 
         /*Could use defaultValue instead of value + onChange + state
@@ -38,7 +47,7 @@ var InputField = React.createClass({
             onChange: this.onChange,
             value: this.state.value,
             checked: this.state.checked
-        }, validProps));
+        }, validProps, validEvents));
 
         return field;
     }
@@ -61,13 +70,17 @@ var TextAreaInput = React.createClass({
             value: event.target.value
         });
 
-        if (this.props.callback && typeof this.props.callback === 'function') this.props.callback();
+        if (this.props.onChange) this.props.onChange(event);
     },
 
     render: function () {
         var validProps = {};
+        var validEvents = {};
         for (key in this.props) {
-            if (DOMProperties.includes(key)) validProps[key] = this.props[key];
+            if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
+                if (DOMProperties.includes(key)) validProps[key] = this.props[key];
+                if (DOMEvents.includes(key)) validEvents[key] = this.props[key];else validProps["data-" + key] = this.props[key];
+            }
         }
 
         /*Could use defaultValue instead of value + onChange + state
@@ -76,7 +89,7 @@ var TextAreaInput = React.createClass({
             name: this.props.label,
             onChange: this.onChange,
             value: this.state.value
-        }, validProps));
+        }, validProps, validEvents));
 
         return field;
     }
@@ -188,7 +201,7 @@ metawidget.react.ReactMetawidget = function (element, config) {
 
     _pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
     _pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder({ doLabels: false })]);
-    _pipeline.widgetProcessors = [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()];
+    _pipeline.widgetProcessors = [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor(), new metawidget.react.widgetprocessor.ReactBindingProcessor()];
     _pipeline.layout = new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })));
     _pipeline.configure(config);
 
@@ -258,6 +271,22 @@ metawidget.react.ReactMetawidget = function (element, config) {
 
         return nestedWidget;
     };
+
+    var t = this;
+    this.save = function () {
+
+        return _pipeline.getWidgetProcessor(function (widgetProcessor) {
+
+            return widgetProcessor instanceof metawidget.react.widgetprocessor.ReactBindingProcessor;
+        }).save(t);
+    };
+
+    if (_pipeline.maximumInspectionDepth == 10) {
+        var b = document.createElement("button");
+        b.innerHTML = "Me";
+        b.onclick = this.save;
+        document.body.appendChild(b);
+    }
 };
 
 metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {};
@@ -285,10 +314,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
             var properties = {
                 label: attributes.name,
-                metawidgetAttributes: attributes,
-                callback: function () {
-                    console.log("CALLBACK TRIGGERED");
-                }
+                metawidgetAttributes: attributes
             };
 
             let elements = {
@@ -436,13 +462,31 @@ metawidget.react.widgetprocessor.ValueAttributeProcessor = function () {
         throw new Error('Constructor called as a function');
     }
 };
-metawidget.react.widgetprocessor.ValueAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes) {
+metawidget.react.widgetprocessor.ValueAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes, mw) {
 
-    if (attributes.value !== undefined) {
-        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: attributes.value });
+    //Get value from toInspect object
+    var value;
+    var typeAndNames = metawidget.util.splitPath(mw.path);
+    var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
+
+    if (typeAndNames.names === undefined) {
+        typeAndNames.names = [];
     }
-    if (attributes.checked !== undefined) {
-        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { checked: attributes.checked });
+    if (elementName !== 'entity' && toInspect !== undefined) {
+        value = toInspect[attributes.name];
+        typeAndNames.names.push(attributes.name);
+    } else {
+        value = toInspect;
+    }
+
+    if (value !== undefined) {
+        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: value, checked: value });
+    }
+
+    //Get value from attributes
+    //Currently overwrites that from toInspect
+    if (attributes.value !== undefined) {
+        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: attributes.value, checked: attributes.value });
     }
 
     return widget;
@@ -551,4 +595,53 @@ metawidget.react.widgetprocessor.IdProcessor.prototype.processWidget = function 
     }
 
     return widget;
+};
+
+metawidget.react.widgetprocessor.ReactBindingProcessor = function () {
+
+    if (!(this instanceof metawidget.react.widgetprocessor.ReactBindingProcessor)) {
+        throw new Error('Constructor called as a function');
+    }
+    this.holder = {};
+};
+metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget = function (widget, elementName, attributes, mw) {
+
+    var t = this;
+    if (React.isValidElement(widget)) {
+        var toInspectPath = "";
+        if (mw.path) {
+            var firstSplit = mw.path.indexOf(".");
+            toInspectPath += mw.path.substring(firstSplit + 1);
+            toInspectPath += ".";
+        }
+        widget = React.cloneElement(widget, { onChange: function (e) {
+                t.holder[toInspectPath + attributes.name] = e.target.value || e.target.checked;
+            }
+        });
+    }
+
+    return widget;
+};
+
+//http://stackoverflow.com/questions/18936915/dynamically-set-property-of-nested-object
+function copyAcross(toThis, fromThis) {
+    for (var bigkey in fromThis) {
+        var splitKey = bigkey.split(".");
+
+        var tempLayer = toThis;
+        for (var i = 0; i < splitKey.length - 1; i++) {
+            //Allow for setting of non-existent values, eg exist.notexist.notexist.value
+            if (!tempLayer[splitKey[i]]) tempLayer[splitKey[i]] = {};
+            tempLayer = tempLayer[splitKey[i]];
+        }
+
+        //Have to use [], else it sets by value, not reference
+        tempLayer[splitKey[splitKey.length - 1]] = fromThis[bigkey];
+    }
+}
+metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function (mw) {
+
+    copyAcross(mw.toInspect, this.holder);
+    console.log(mw.toInspect);
+    return true;
 };
