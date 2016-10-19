@@ -90,12 +90,14 @@ var schema = {
 };
 
 var person = {
-				name: "Homer Simpson",
-				email: "homer@nuclear.power.plant.com",
-				retired: false,
-				address: {street:"There St",
-						  suburb:"Dingbat",
-						  state:"NSW",
-						  postcode:5678,
-						  country:"Australia"}
+    name: "Homer Simpson",
+    email: "homer@nuclear.power.plant.com",
+    retired: false,
+    address: {
+        street: "There St",
+        suburb: "Dingbat",
+        state: "NSW",
+        postcode: 5678,
+        country: "Australia"
+    }
 };
