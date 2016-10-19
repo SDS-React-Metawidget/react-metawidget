@@ -572,7 +572,8 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
             toInspectPath += mw.path.substring(firstSplit + 1);
             toInspectPath += ".";
         }
-        widget = React.cloneElement(widget, { onChange: function (e) {
+        widget = React.cloneElement(widget, {
+            onChange: function (e) {
                 t.holder[toInspectPath + attributes.name] = e.target.value || e.target.checked;
             }
         });
@@ -606,9 +607,13 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function
 
 var MetaWidget = React.createClass({
     propTypes: {
+        toInspect: React.PropTypes.object,
         inspector: React.PropTypes.object,
+        addInspectors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         widgetBuilder: React.PropTypes.object,
+        addWidgetBuilders: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
+        addWidgetProcessors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         layout: React.PropTypes.object
     },
 
@@ -616,16 +621,48 @@ var MetaWidget = React.createClass({
         return {
             toInspect: {},
             inspector: new metawidget.inspector.PropertyTypeInspector(),
-            widgetBuilder: new metawidget.widgetbuilder.CompositeWidgetBuilder([new metawidget.react.widgetbuilder.ReactWidgetBuilder()]),
+            widgetBuilder: new metawidget.react.widgetbuilder.ReactWidgetBuilder(),
             widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
             layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
         };
     },
 
+    buildInspector: function () {
+        var inspector,
+            array = [];
+        if (this.props.addInspectors) {
+            array = array.concat(this.props.inspector, this.props.addInspectors);
+            inspector = new metawidget.inspector.CompositeInspector(array);
+        } else {
+            inspector = this.props.inspector;
+        }
+        return inspector;
+    },
+
+    buildWidgetBuilder: function () {
+        var widgetBuilder,
+            array = [];
+        if (this.props.addWidgetBuilders) {
+            array = array.concat(this.props.widgetBuilder, this.props.addWidgetBuilders);
+            widgetBuilder = new metawidget.widgetBuilder.CompositeWidgetBuilder(array);
+        } else {
+            widgetBuilder = this.props.widgetBuilder;
+        }
+        return widgetBuilder;
+    },
+
+    buildWidgetProcessors: function () {
+        var widgetProcessors = this.props.widgetProcessors;
+        if (this.props.addInspectors) {
+            widgetProcessors = widgetProcessors.concat(this.props.addWidgetProcessors);
+        }
+        return widgetProcessors;
+    },
+
     componentDidMount: function () {
         this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, {
-            inspector: this.props.inspector,
-            widgetBuilder: this.props.widgetBuilder,
+            inspector: this.buildInspector(),
+            widgetBuilder: this.buildWidgetBuilder(),
             widgetProcessors: this.props.widgetProcessors,
             layout: this.props.layout
         });
