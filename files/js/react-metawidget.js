@@ -736,9 +736,11 @@ var MetaWidget = React.createClass({
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
         addWidgetProcessors: React.PropTypes.oneOfType([
             React.PropTypes.object,
+            React.PropTypes.func,
             React.PropTypes.arrayOf(React.PropTypes.object),
         ]),
         layout: React.PropTypes.object,
+        readOnly: React.PropTypes.bool,
     },
 
     getDefaultProps: function () {
