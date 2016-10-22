@@ -97,5 +97,6 @@ var person = {
 						  suburb:"Dingbat",
 						  state:"NSW",
 						  postcode:5678,
-						  country:"Australia"}
+						  country:"Australia",
+						  more:function() {console.log("more");}}
 };
