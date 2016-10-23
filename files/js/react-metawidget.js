@@ -277,7 +277,7 @@ metawidget.react.ReactMetawidget = function (element, config) {
     };
 
 
-    if (_pipeline.maximumInspectionDepth == 10) {
+    if (_pipeline.maximumInspectionDepth === 10) {
         var b = document.createElement("button");
         b.innerHTML = "Me";
         b.onclick = this.save;
