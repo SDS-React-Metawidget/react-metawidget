@@ -4,7 +4,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFullScreen", "allowTransparency", "alt", "async", "autoComplete", "autoFocus", "autoPlay", "capture", "cellPadding", "cellSpacing", "challenge", "charSet",, /*"checked"*/"cite", "classID", "className", "colSpan", "cols", "content", "contentEditable", "contextMenu", "controls", "coords", "crossOrigin", "data", "dateTime", "default", "defer", "dir", "disabled", "download", "draggable", "encType", "form", "formAction", "formEncType", "formMethod", "formNoValidate", "formTarget", "frameBorder", "headers", "height", "hidden", "high", "href", "hrefLang", "htmlFor", "httpEquiv", "icon", "id", "inputMode", "integrity", "is", "keyParams", "keyType", "kind", "label", "lang", "list", "loop", "low", "manifest", "marginHeight", "marginWidth", "max", "maxLength", "media", "mediaGroup", "method", "min", "minLength", "multiple", "muted", "name", "noValidate", "nonce", "open", "optimum", "pattern", "placeholder", "poster", "preload", "profile", "radioGroup", "readOnly", "rel", "required", "reversed", "role", "rowSpan", "rows", "sandbox", "scope", "scoped", "scrolling", "seamless", "selected", "shape", "size", "sizes", "span", "spellCheck", "src", "srcDoc", "srcLang", "srcSet", "start", "step", "style", "summary", "tabIndex", "target", "title", "type", "useMap",, /*"value"*/"width", "wmode", "wrap"];
 //Disallow "value" and "checked", as they are explicitly handled
-var dontCheckProperties = ["checked", "value"];
+var dontCheckProperties = ["checked", "value", "metawidgetAttributes"];
 
 var DOMEvents = ["onCopy", "onCut", "onPaste", "onCompositionEnd", "onCompositionStart", "onCompositionUpdate", "onKeyDown", "onKeyPress", "onKeyUp", "onFocus", "onBlur",, /*"onChange"*/"onInput", "onSubmit", "onClick", "onContextMenu", "onDoubleClick", "onDrag", "onDragEnd", "onDragEnter", "onDragExit", "onDragLeave", "onDragOver", "onDragStart", "onDrop", "onMouseDown", "onMouseEnter", "onMouseLeave	onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onTouchCancel", "onTouchEnd", "onTouchMove", "onTouchStart", "onScroll", "onWheel", "onAbort", "onCanPlay", "onCanPlayThrough", "onDurationChange", "onEmptied", "onEncrypted", "onEnded", "onError", "onLoadedData", "onLoadedMetadata", "onLoadStart", "onPause", "onPlay", "onPlaying", "onProgress", "onRateChange", "onSeeked", "onSeeking", "onStalled", "onSuspend", "onTimeUpdate", "onVolumeChange", "onWaiting", "onLoad", "onError", "onAnimationStart", "onAnimationEnd", "onAnimationIteration", "onTransitionEnd"];
 //Disallow "onChange" as it is explicitly handled
@@ -17,20 +17,22 @@ var InputField = React.createClass({
     },
 
     getInitialState: function () {
-        return {
-            value: this.props.value || "",
-            checked: this.props.checked || false
-        };
+        var state = {};
+        if (this.props.type === "checkbox") state.checked = this.props.checked || false;else state.value = this.props.value || "";
+
+        return state;
     },
 
     //Handle change of value
     onChange: function (event) {
-        this.setState({
-            value: event.target.value,
-            checked: event.target.checked
-        });
+        var updateState = {};
+        if (this.props.type === "checkbox") updateState.checked = event.target.checked;else updateState.value = event.target.value;
 
-        if (this.props.onChange) this.props.onChange(event);
+        this.setState(updateState);
+
+        if (this.props.onChange) {
+            if (this.props.type === "checkbox") this.props.onChange(event.target.checked);else this.props.onChange(event.target.value);
+        }
     },
 
     checkValidProps: function (props) {
@@ -39,15 +41,13 @@ var InputField = React.createClass({
 
         for (let key in this.props) {
             if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
-                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];
-                if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
+                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];else if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
             }
         }
     },
 
     render: function () {
         return React.createElement("input", _extends({
-            name: this.props.label,
             onChange: this.onChange,
             value: this.state.value,
             checked: this.state.checked
@@ -73,7 +73,7 @@ var TextAreaInput = React.createClass({
             value: event.target.value
         });
 
-        if (this.props.onChange) this.props.onChange(event);
+        if (this.props.onChange) this.props.onChange(event.target.value);
     },
 
     checkValidProps: function (props) {
@@ -82,15 +82,13 @@ var TextAreaInput = React.createClass({
 
         for (let key in this.props) {
             if (!dontCheckProperties.includes(key) && !dontCheckEvents.includes(key)) {
-                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];
-                if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
+                if (DOMProperties.includes(key)) this.validProps[key] = this.props[key];else if (DOMEvents.includes(key)) this.validEvents[key] = this.props[key];else this.validProps["data-" + key] = this.props[key];
             }
         }
     },
 
     render: function () {
         return React.createElement("textarea", _extends({
-            name: this.props.label,
             onChange: this.onChange,
             value: this.state.value
         }, this.validProps, this.validEvents));
@@ -98,6 +96,10 @@ var TextAreaInput = React.createClass({
 });
 
 var Select = React.createClass({
+    onChange: function (e) {
+        if (this.props.onChange) this.props.onChange(e.target.value);
+    },
+
     render: function () {
         var options = this.props.options.map(function (option, i) {
             return React.createElement(
@@ -109,19 +111,31 @@ var Select = React.createClass({
 
         return React.createElement(
             "select",
-            null,
+            { onChange: this.onChange },
             options
         );
     }
 });
 
 var Radio = React.createClass({
+    getInitialState: function () {
+        return { selectedOption: "1" };
+    },
+
+    onChange: function (e) {
+        this.setState({
+            selectedOption: e.target.value
+        });
+
+        if (this.props.onChange) this.props.onChange(this.props.options[e.target.value]);
+    },
+
     render: function () {
         var options = this.props.options.map(function (option, i) {
             return React.createElement(
                 "label",
                 { key: i },
-                React.createElement("input", { type: "radio", name: this.props.label }),
+                React.createElement("input", { type: "radio", value: i + "", name: this.props.label, checked: this.state.selectedOption === i + "", onChange: this.onChange }),
                 " ",
                 option
             );
@@ -242,14 +256,13 @@ metawidget.react.ReactMetawidget = function (element, config) {
     this.save = function () {
 
         return _pipeline.getWidgetProcessor(function (widgetProcessor) {
-
             return widgetProcessor instanceof metawidget.react.widgetprocessor.ReactBindingProcessor;
         }).save(t);
     };
 
     if (_pipeline.maximumInspectionDepth == 10) {
         var b = document.createElement("button");
-        b.innerHTML = "Me";
+        b.innerHTML = "Save changes into toInspect";
         b.onclick = this.save;
         document.body.appendChild(b);
     }
@@ -271,7 +284,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
         if (attributes.type) {
             var properties = {
-                label: attributes.name,
+                name: attributes.name,
                 metawidgetAttributes: attributes
             };
 
@@ -319,6 +332,18 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                         type: e => e === 'number' || e === 'integer' || e === 'float'
                     },
                     result: [InputField, { type: 'number' }]
+                },
+                button: {
+                    parameters: {
+                        type: e => e === 'function'
+                    },
+                    result: [InputField, {
+                        type: attributes.submit ? "submit" : "button",
+                        onClick: function () {
+                            return metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name]();
+                        },
+                        value: metawidget.util.getLabelString(attributes, mw)
+                    }]
                 },
                 booleanRadio: {
                     parameters: {
@@ -422,29 +447,31 @@ metawidget.react.widgetprocessor.ValueAttributeProcessor = function () {
 };
 metawidget.react.widgetprocessor.ValueAttributeProcessor.prototype.processWidget = function (widget, elementName, attributes, mw) {
 
-    //Get value from toInspect object
-    var value;
-    var typeAndNames = metawidget.util.splitPath(mw.path);
-    var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
+    if (attributes.type !== "function") {
+        //Get value from toInspect object
+        var value;
+        var typeAndNames = metawidget.util.splitPath(mw.path);
+        var toInspect = metawidget.util.traversePath(mw.toInspect, typeAndNames.names);
 
-    if (typeAndNames.names === undefined) {
-        typeAndNames.names = [];
-    }
-    if (elementName !== 'entity' && toInspect !== undefined) {
-        value = toInspect[attributes.name];
-        typeAndNames.names.push(attributes.name);
-    } else {
-        value = toInspect;
-    }
+        if (typeAndNames.names === undefined) {
+            typeAndNames.names = [];
+        }
+        if (elementName !== 'entity' && toInspect !== undefined) {
+            value = toInspect[attributes.name];
+            typeAndNames.names.push(attributes.name);
+        } else {
+            value = toInspect;
+        }
 
-    if (value !== undefined) {
-        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: value, checked: value });
-    }
+        if (value !== undefined) {
+            if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: value, checked: value });
+        }
 
-    //Get value from attributes
-    //Currently overwrites that from toInspect
-    if (attributes.value !== undefined) {
-        if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: attributes.value, checked: attributes.value });
+        //Get value from attributes
+        //Currently overwrites that from toInspect
+        if (attributes.value !== undefined) {
+            if (React.isValidElement(widget)) widget = React.cloneElement(widget, { value: attributes.value, checked: attributes.value });
+        }
     }
 
     return widget;
@@ -566,15 +593,9 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
 
     var t = this;
     if (React.isValidElement(widget)) {
-        var toInspectPath = "";
-        if (mw.path) {
-            var firstSplit = mw.path.indexOf(".");
-            toInspectPath += mw.path.substring(firstSplit + 1);
-            toInspectPath += ".";
-        }
         widget = React.cloneElement(widget, {
             onChange: function (e) {
-                t.holder[toInspectPath + attributes.name] = e.target.value || e.target.checked;
+                t.holder[metawidget.util.appendPath(attributes, mw)] = e;
             }
         });
     }
@@ -582,24 +603,23 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
     return widget;
 };
 
-//http://stackoverflow.com/questions/18936915/dynamically-set-property-of-nested-object
 function copyAcross(toThis, fromThis) {
-    for (var bigkey in fromThis) {
-        var splitKey = bigkey.split(".");
+    for (var bigKey in fromThis) {
+        var splitKey = metawidget.util.splitPath(bigKey);
 
-        var tempLayer = toThis;
-        for (var i = 0; i < splitKey.length - 1; i++) {
-            //Allow for setting of non-existent values, eg exist.notexist.notexist.value
-            if (!tempLayer[splitKey[i]]) tempLayer[splitKey[i]] = {};
-            tempLayer = tempLayer[splitKey[i]];
-        }
+        //NEED TO DO NESTED LOGIC HERE
+        //IF NESTED OBJECT DOES NOT EXIST, THEN THIS PART FAILS
+        var toInspect = metawidget.util.traversePath(toThis, splitKey.names.slice(0, splitKey.names.length - 1));
+        if (toInspect === undefined) toInspect = {};
 
+        var name = splitKey.names[splitKey.names.length - 1];
         //Have to use [], else it sets by value, not reference
-        tempLayer[splitKey[splitKey.length - 1]] = fromThis[bigkey];
+        toInspect[name] = fromThis[bigKey];
     }
 }
 metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function (mw) {
 
+    console.log(this.holder);
     copyAcross(mw.toInspect, this.holder);
     console.log(mw.toInspect);
     return true;
@@ -653,7 +673,7 @@ var MetaWidget = React.createClass({
 
     buildWidgetProcessors: function () {
         var widgetProcessors = this.props.widgetProcessors;
-        if (this.props.addInspectors) {
+        if (this.props.addWidgetProcessors) {
             widgetProcessors = widgetProcessors.concat(this.props.addWidgetProcessors);
         }
         return widgetProcessors;
@@ -663,7 +683,7 @@ var MetaWidget = React.createClass({
         this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, {
             inspector: this.buildInspector(),
             widgetBuilder: this.buildWidgetBuilder(),
-            widgetProcessors: this.props.widgetProcessors,
+            widgetProcessors: this.buildWidgetProcessors(),
             layout: this.props.layout
         });
         this.mw.toInspect = this.props.toInspect;

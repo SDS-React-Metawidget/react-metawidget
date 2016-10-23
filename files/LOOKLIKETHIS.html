@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script src="lib/mw/metawidget.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-inspectionresultprocessors.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-inspectors.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-layouts.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-utils.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-webcomponent.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-widgetbuilders.js" type="text/javascript"></script>
+		<script src="./lib/mw/metawidget-widgetprocessors.js" type="text/javascript"></script>
+		
 		<script type="text/javascript">
 			var person = {
 				name: "Homer Simpson",
 				age: 40,
-				retired: false
+				retired: false,
+				a: function() {console.log("a");}
 			};
 		</script>
 	</head>
@@ -37,8 +46,9 @@
 									type: "string"
 								},
 								option: {
-									type: "boolean",
+									//type: "boolean",
 									componentType: "radio",
+									enum: ["Yes", "No", "Maybe"]
 								}
 							}
 						};
