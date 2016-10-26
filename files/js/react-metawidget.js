@@ -754,38 +754,6 @@ var MetaWidget = React.createClass({
         }
     },
 
-    buildInspector: function () {
-        var inspector, array = [];
-        if (this.props.addInspectors) {
-            array = array.concat(this.props.inspector, this.props.addInspectors);
-            inspector = new metawidget.inspector.CompositeInspector(array);
-        }
-        else {
-            inspector = this.props.inspector;
-        }
-        return inspector;
-    },
-
-    buildWidgetBuilder: function () {
-        var widgetBuilder, array = [];
-        if (this.props.addWidgetBuilders) {
-            array = array.concat(this.props.widgetBuilder, this.props.addWidgetBuilders);
-            widgetBuilder = new metawidget.widgetBuilder.CompositeWidgetBuilder(array);
-        }
-        else {
-            widgetBuilder = this.props.widgetBuilder;
-        }
-        return widgetBuilder;
-    },
-
-    buildWidgetProcessors: function () {
-        var widgetProcessors = this.props.widgetProcessors;
-        if (this.props.addWidgetProcessors) {
-            widgetProcessors = widgetProcessors.concat(this.props.addWidgetProcessors);
-        }
-        return widgetProcessors;
-    },
-
     componentDidMount: function () {
         this.mw = new metawidget.react.ReactMetawidget(
             this.refs.metawidget, {...this.props}
