@@ -266,16 +266,6 @@ metawidget.react.ReactMetawidget = function (element, config) {
             return widgetProcessor instanceof metawidget.react.widgetprocessor.ReactBindingProcessor;
         }).save(t);
     };
-<<<<<<< HEAD
-=======
-
-    if (_pipeline.maximumInspectionDepth === 10) {
-        var b = document.createElement("button");
-        b.innerHTML = "Save changes into toInspect";
-        b.onclick = this.save;
-        document.body.appendChild(b);
-    }
->>>>>>> 585873ce980a7688261650c466cef05a7dbdaf2a
 };
 
 metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {};
@@ -292,8 +282,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             return metawidget.util.createElement(mw, 'stub');
         }
 
-        if (attributes !== undefined && !("type" in attributes && attributes.type === undefined)) {
-            console.log(attributes);
+        if (attributes.type) {
             var properties = {
                 name: attributes.name,
                 metawidgetAttributes: attributes
@@ -395,7 +384,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 select: {
                     parameters: {
                         //type: (e) => e === 'select',
-                        enum: e => e !== console.log(e)
+                        enum: e => e !== undefined
                     },
                     result: [Select, { options: attributes["enum"] }]
                 },
@@ -698,10 +687,6 @@ var MetaWidget = React.createClass({
         inspector: React.PropTypes.object,
         widgetBuilder: React.PropTypes.object,
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
-<<<<<<< HEAD
-        addWidgetProcessors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.func, React.PropTypes.arrayOf(React.PropTypes.object)]),
-=======
->>>>>>> 585873ce980a7688261650c466cef05a7dbdaf2a
         layout: React.PropTypes.object,
         readOnly: React.PropTypes.bool
     },
@@ -711,14 +696,9 @@ var MetaWidget = React.createClass({
             toInspect: {},
             inspector: new metawidget.inspector.PropertyTypeInspector(),
             widgetBuilder: new metawidget.react.widgetbuilder.ReactWidgetBuilder(),
-<<<<<<< HEAD
             widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
-            layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
-=======
-            widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
             layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 }))),
             readOnly: false
->>>>>>> 585873ce980a7688261650c466cef05a7dbdaf2a
         };
     },
 

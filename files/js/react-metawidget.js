@@ -324,9 +324,8 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             return metawidget.util.createElement(mw, 'stub');
         }
 
-        if (attributes !== undefined && !("type" in attributes && attributes.type === undefined))
+        if (attributes.type)
 		{
-			console.log(attributes);
             var properties = {
                 name: attributes.name,
                 metawidgetAttributes: attributes,
@@ -457,7 +456,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 select: {
                     parameters: {
                         //type: (e) => e === 'select',
-                        enum: (e) => e !== console.log(e),
+                        enum: (e) => e !== undefined,
                     },
                     result: [
                         Select,
