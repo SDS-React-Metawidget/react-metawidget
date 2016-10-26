@@ -251,9 +251,9 @@ metawidget.react.ReactMetawidget = function (element, config) {
 
         // var nestedMetawidget = <MetaWidget
         // toInspect={this.toInspect}
-        //config={config}
-        //element={metawidget.util.createElement(this, 'div')}
-        //readOnly={this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly)}
+        // config={[_pipeline,config]}
+        // element={nestedWidget}
+        // readOnly={this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly)}
         // />
 
         return nestedWidget;
@@ -266,13 +266,6 @@ metawidget.react.ReactMetawidget = function (element, config) {
             return widgetProcessor instanceof metawidget.react.widgetprocessor.ReactBindingProcessor;
         }).save(t);
     };
-
-    if (_pipeline.maximumInspectionDepth === 10) {
-        var b = document.createElement("button");
-        b.innerHTML = "Save changes into toInspect";
-        b.onclick = this.save;
-        document.body.appendChild(b);
-    }
 };
 
 metawidget.react.widgetbuilder = metawidget.react.widgetbuilder || {};
@@ -289,26 +282,35 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
             return metawidget.util.createElement(mw, 'stub');
         }
 
-        if (attributes.type) {
+        if (attributes !== undefined && !("type" in attributes && attributes.type === undefined)) {
+            console.log(attributes);
             var properties = {
                 name: attributes.name,
                 metawidgetAttributes: attributes
             };
 
             let elements = {
-                textArea: {
-                    parameters: {
-                        type: e => e === 'string',
-                        maxLength: e => e > 32
-                    },
-                    result: [TextAreaInput, {}]
-                },
                 textInput: {
                     parameters: {
                         type: e => e === 'string',
                         maxLength: e => !e || e <= 32
                     },
                     result: [InputField, { type: 'text' }]
+                },
+                password: {
+                    parameters: {
+                        type: e => e === 'string',
+                        masked: e => e === true
+                    },
+                    result: [InputField, { type: 'password' }]
+                },
+                textArea: {
+                    parameters: {
+                        type: e => e === 'string',
+                        //maxLength: (e) => e > 32,
+                        large: e => e === true
+                    },
+                    result: [TextAreaInput, {}]
                 },
                 checkbox: {
                     parameters: {
@@ -340,13 +342,34 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                     },
                     result: [InputField, { type: 'number' }]
                 },
+                range: {
+                    parameters: {
+                        type: e => e === 'number' || e === 'integer' || e === 'float',
+                        min: e => e !== undefined,
+                        max: e => e !== undefined
+                    },
+                    result: [InputField, { type: 'range' }]
+                },
                 button: {
                     parameters: {
                         type: e => e === 'function'
                     },
                     result: [InputField, {
-                        type: attributes.submit ? "submit" : "button",
-                        onClick: function () {
+                        type: "button",
+                        onClick: attributes.save ? mw.save : function () {
+                            return metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name]();
+                        },
+                        value: metawidget.util.getLabelString(attributes, mw)
+                    }]
+                },
+                submit: {
+                    parameters: {
+                        type: e => e === 'function',
+                        submit: e => e === true
+                    },
+                    result: [InputField, {
+                        type: "submit",
+                        onClick: attributes.save ? mw.save : function () {
                             return metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name]();
                         },
                         value: metawidget.util.getLabelString(attributes, mw)
@@ -361,8 +384,8 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 },
                 select: {
                     parameters: {
-                        type: e => e === 'select',
-                        enum: e => e !== undefined
+                        //type: (e) => e === 'select',
+                        enum: e => e !== console.log(e)
                     },
                     result: [Select, { options: attributes["enum"] }]
                 },
@@ -443,7 +466,6 @@ metawidget.react.layout.ReactRenderDecorator = function (config) {
 
 //Various processors for 'volatile' attributes
 //Could be combined into a single one?
-metawidget.widgetprocessor = metawidget.widgetprocessor || {};
 metawidget.react.widgetprocessor = metawidget.react.widgetprocessor || {};
 
 metawidget.react.widgetprocessor.ValueAttributeProcessor = function () {
