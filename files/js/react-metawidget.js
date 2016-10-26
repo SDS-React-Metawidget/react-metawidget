@@ -424,7 +424,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 						InputField,
 						{
 							type: "button",
-							onClick: (attributes.save ? mw.save : function() { return metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name]()}),
+							onClick: metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name],
 							value: metawidget.util.getLabelString(attributes, mw),
 						}
 					]
@@ -438,7 +438,7 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 						InputField,
 						{
 							type: "submit",
-							onClick: (attributes.save ? mw.save : function() { return metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name]()}),
+							onClick: metawidget.util.traversePath(mw.toInspect, metawidget.util.splitPath(mw.path).names)[attributes.name],
 							value: metawidget.util.getLabelString(attributes, mw),
 						}
 					]
@@ -830,9 +830,10 @@ var MetaWidget = React.createClass({
         this.mw.readOnly = this.props.readOnly;
 
         this.mw.buildWidgets();
+		this.refs.metawidget.mw = this.mw;
     },
 
     render: function () {
-        return <div ref="metawidget"/>
+        return <div id="mwContainer" ref="metawidget"/>
     }
 });

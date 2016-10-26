@@ -86,10 +86,6 @@ var schema = {
         },
       },
     },
-	save: {
-		type: "function",
-		save: true,
-	}
   },
 };
 
@@ -97,7 +93,6 @@ var schema2 = {
 	properties: {
 		buttonSave: {
 			type: "function",
-			save: true,
 		},
 		submit: {
 			type: "function",
@@ -136,19 +131,3 @@ var schema2 = {
 		},
 	}
 }
-
-var person = {
-				name: "Homer Simpson",
-				email: "homer@nuclear.power.plant.com",
-				retired: false,
-				address: {
-					street:"There St",
-					suburb:"Dingbat",
-					state:"NSW",
-					postcode:5678,
-					country:"Australia",
-					more:function() {
-						console.log("more");
-					}
-				}
-};
