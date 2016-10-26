@@ -9,6 +9,8 @@ var Rating = React.createClass({
 		this.setState({
 			rating: e.currentTarget.attributes["data-value"].value
 		});
+
+		if (this.props.onChange) this.props.onChange(e.currentTarget.attributes["data-value"].value);
 	},
 
 	render: function () {
@@ -26,7 +28,7 @@ var Rating = React.createClass({
 						style: { cursor: "pointer" } },
 					inner
 				),
-				" "
+				"\xA0"
 			));
 		}
 		return React.createElement(

@@ -84,12 +84,20 @@ var schema = {
                     readOnly: true,
                     value: "Plumber"
                 },
-            },
+				extraNestedAddress: {
+					properties: {
+						extra: {
+							type: "string",
+							placeholder: "Extra",
+						},
+					},
+				},
+			},
         },
     },
 };
 
-var person =
+var person = {
 				name: "Homer Simpson",
 				email: "homer@nuclear.power.plant.com",
 				retired: false,

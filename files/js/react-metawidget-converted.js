@@ -249,6 +249,13 @@ metawidget.react.ReactMetawidget = function (element, config) {
         nestedMetawidget.readOnly = this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly);
         nestedMetawidget.buildWidgets();
 
+        // var nestedMetawidget = <MetaWidget
+        // toInspect={this.toInspect}
+        //config={config}
+        //element={metawidget.util.createElement(this, 'div')}
+        //readOnly={this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly)}
+        // />
+
         return nestedWidget;
     };
 
@@ -260,7 +267,7 @@ metawidget.react.ReactMetawidget = function (element, config) {
         }).save(t);
     };
 
-    if (_pipeline.maximumInspectionDepth == 10) {
+    if (_pipeline.maximumInspectionDepth === 10) {
         var b = document.createElement("button");
         b.innerHTML = "Save changes into toInspect";
         b.onclick = this.save;
@@ -604,24 +611,52 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
 };
 
 function copyAcross(toThis, fromThis) {
+    console.log("ft", fromThis);
     for (var bigKey in fromThis) {
         var splitKey = metawidget.util.splitPath(bigKey);
 
-        //NEED TO DO NESTED LOGIC HERE
-        //IF NESTED OBJECT DOES NOT EXIST, THEN THIS PART FAILS
-        var toInspect = metawidget.util.traversePath(toThis, splitKey.names.slice(0, splitKey.names.length - 1));
-        if (toInspect === undefined) toInspect = {};
+        //Nested widgets will have more than one name
+        if (splitKey.names.length > 1) {
+            //Check if nestedWidget object exists
+            //If not, create 'just in time'
+            if (toThis[splitKey.names.slice(0, 1)] === undefined) toThis[splitKey.names.slice(0, 1)] = {};
 
-        var name = splitKey.names[splitKey.names.length - 1];
-        //Have to use [], else it sets by value, not reference
-        toInspect[name] = fromThis[bigKey];
+            //Set toInspect to the nestedWidget object
+            var toInspect = toThis[splitKey.names.slice(0, 1)];
+
+            //Recreate path string, just one deeper
+            var string = splitKey.type + "";
+            splitKey.names.splice(0, 1);
+            splitKey.names.forEach(function (val) {
+                string += "." + val;
+            });
+
+            //Create object using path string and value
+            var obj = {};
+            obj[string] = fromThis[bigKey];
+
+            //Recurse this function with nestedWidget object 
+            //and deeper path
+            copyAcross(toInspect, obj);
+        } else {
+            //Works when toInspect is already populated
+            //but not guaranteed, so have to use nested logic to manually
+            //set and check each level
+            //var toInspect = metawidget.util.traversePath(toThis, splitKey.names.slice(0, splitKey.names.length-1));
+
+            var toInspect = toThis;
+            if (toInspect === undefined) toInspect = {};
+
+            var name = splitKey.names[splitKey.names.length - 1];
+            //Have to use [], else it sets by value, not reference
+            toInspect[name] = fromThis[bigKey];
+        }
     }
 }
 metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function (mw) {
 
-    console.log(this.holder);
     copyAcross(mw.toInspect, this.holder);
-    console.log(mw.toInspect);
+    console.log("m", mw.toInspect);
     return true;
 };
 
@@ -633,8 +668,9 @@ var MetaWidget = React.createClass({
         widgetBuilder: React.PropTypes.object,
         addWidgetBuilders: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
-        addWidgetProcessors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
-        layout: React.PropTypes.object
+        addWidgetProcessors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.func, React.PropTypes.arrayOf(React.PropTypes.object)]),
+        layout: React.PropTypes.object,
+        readOnly: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
@@ -642,7 +678,7 @@ var MetaWidget = React.createClass({
             toInspect: {},
             inspector: new metawidget.inspector.PropertyTypeInspector(),
             widgetBuilder: new metawidget.react.widgetbuilder.ReactWidgetBuilder(),
-            widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
+            widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
             layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
         };
     },

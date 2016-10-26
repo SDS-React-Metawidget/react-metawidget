@@ -290,6 +290,13 @@ metawidget.react.ReactMetawidget = function (element, config) {
         nestedMetawidget.path = metawidget.util.appendPath(attributes, this);
         nestedMetawidget.readOnly = this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly);
         nestedMetawidget.buildWidgets();
+		
+		// var nestedMetawidget = <MetaWidget
+			// toInspect={this.toInspect}
+			//config={config}
+			//element={metawidget.util.createElement(this, 'div')}
+			//readOnly={this.readOnly || metawidget.util.isTrueOrTrueString(attributes.readOnly)}
+		// />
 
         return nestedWidget;
     };
@@ -697,26 +704,58 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
 
 function copyAcross(toThis, fromThis) 
 {
+	console.log("ft", fromThis);
     for(var bigKey in fromThis) 
 	{
         var splitKey = metawidget.util.splitPath(bigKey);
 		
-		//NEED TO DO NESTED LOGIC HERE
-		//IF NESTED OBJECT DOES NOT EXIST, THEN THIS PART FAILS
-        var toInspect = metawidget.util.traversePath(toThis, splitKey.names.slice(0, splitKey.names.length-1));
-		if(toInspect === undefined)
-			toInspect = {};
-		
-		var name = splitKey.names[splitKey.names.length-1];
-        //Have to use [], else it sets by value, not reference
-        toInspect[name] = fromThis[bigKey];
+		//Nested widgets will have more than one name
+		if(splitKey.names.length > 1)
+		{
+			//Check if nestedWidget object exists
+			//If not, create 'just in time'
+			if(toThis[splitKey.names.slice(0,1)] === undefined)
+				toThis[splitKey.names.slice(0,1)] = {};
+			
+			//Set toInspect to the nestedWidget object
+			var toInspect = toThis[splitKey.names.slice(0,1)];
+			
+			//Recreate path string, just one deeper
+			var string = splitKey.type + "";
+			splitKey.names.splice(0,1);
+			splitKey.names.forEach(function(val) {
+				string += "." + val;
+			});
+			
+			//Create object using path string and value
+			var obj = {};
+			obj[string] = fromThis[bigKey];
+			
+			//Recurse this function with nestedWidget object 
+			//and deeper path
+			copyAcross(toInspect, obj);
+		}
+		else
+		{
+			//Works when toInspect is already populated
+			//but not guaranteed, so have to use nested logic to manually
+			//set and check each level
+			//var toInspect = metawidget.util.traversePath(toThis, splitKey.names.slice(0, splitKey.names.length-1));
+			
+			var toInspect = toThis;
+			if(toInspect === undefined)
+				toInspect = {};
+			
+			var name = splitKey.names[splitKey.names.length-1];
+			//Have to use [], else it sets by value, not reference
+			toInspect[name] = fromThis[bigKey];
+		}
     }
 }
 metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.save = function (mw) {
 
-	console.log(this.holder);
     copyAcross(mw.toInspect, this.holder);
-    console.log(mw.toInspect);
+    console.log("m", mw.toInspect);
     return true;
 };
 
@@ -754,9 +793,9 @@ var MetaWidget = React.createClass({
                 new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(),
                 new metawidget.react.widgetprocessor.DisabledAttributeProcessor(),
                 new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(),
-                new metawidget.react.widgetprocessor.MaxAttributeProcessor(),
                 new metawidget.react.widgetprocessor.MinAttributeProcessor(),
-                new metawidget.react.widgetprocessor.ValueAttributeProcessor()
+                new metawidget.react.widgetprocessor.MaxAttributeProcessor(),
+                new metawidget.react.widgetprocessor.ValueAttributeProcessor(),
             ],
             layout: new metawidget.react.layout.ReactRenderDecorator(
                 new metawidget.layout.HeadingTagLayoutDecorator(
