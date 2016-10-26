@@ -1,9 +1,9 @@
 ReactDOM.render(
     <MetaWidget
-        toInspect={person}
-        addInspectors={new metawidget.inspector.JsonSchemaInspector(schema)}
-        addWidgetProcessors={new metawidget.react.widgetprocessor.ReactBindingProcessor()}
-        //config={{ inspector: 'hello', otherProp: 'end' }}
+        //toInspect={person}
+        inspector={new metawidget.inspector.JsonSchemaInspector(schema)}
+        appendWidgetProcessors={new metawidget.react.widgetprocessor.ReactBindingProcessor()}
+        readOnly
     />,
     document.getElementById("metawidget")
 )

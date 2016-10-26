@@ -38,7 +38,7 @@ var InputField = React.createClass({
 			state.checked = this.props.checked || false;
 		else
 			state.value = this.props.value || "";
-		
+
         return state;
     },
 
@@ -49,7 +49,7 @@ var InputField = React.createClass({
 			updateState.checked = event.target.checked;
 		else
 			updateState.value = event.target.value;
-		
+
         this.setState(updateState);
 
         if (this.props.onChange)
@@ -145,12 +145,12 @@ var Select = React.createClass({
 		if(this.props.onChange)
 			this.props.onChange(e.target.value);
 	},
-	
+
     render: function () {
         var options = this.props.options.map(function (option, i) {
             return <option key={i}>{option}</option>;
         });
-		
+
         return (
             <select onChange={this.onChange}>
                 {options}
@@ -163,16 +163,16 @@ var Radio = React.createClass({
 	getInitialState: function() {
 		return {selectedOption: "1"};
 	},
-	
+
 	onChange: function(e) {
 		this.setState({
 			selectedOption: e.target.value,
 		});
-		
+
 		if(this.props.onChange)
 			this.props.onChange(this.props.options[e.target.value]);
 	},
-	
+
     render: function () {
         var options = this.props.options.map(function (option, i) {
             return (
@@ -731,7 +731,7 @@ metawidget.react.widgetprocessor.ReactBindingProcessor.prototype.processWidget =
     return widget;
 };
 
-function copyAcross(toThis, fromThis) 
+function copyAcross(toThis, fromThis)
 {
 	console.log("ft", fromThis);
     for(var bigKey in fromThis) 
@@ -792,21 +792,8 @@ var MetaWidget = React.createClass({
     propTypes: {
         toInspect: React.PropTypes.object,
         inspector: React.PropTypes.object,
-        addInspectors: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.arrayOf(React.PropTypes.object),
-        ]),
         widgetBuilder: React.PropTypes.object,
-        addWidgetBuilders: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.arrayOf(React.PropTypes.object),
-        ]),
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
-        addWidgetProcessors: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.func,
-            React.PropTypes.arrayOf(React.PropTypes.object),
-        ]),
         layout: React.PropTypes.object,
         readOnly: React.PropTypes.bool,
     },
@@ -830,52 +817,18 @@ var MetaWidget = React.createClass({
                 new metawidget.layout.HeadingTagLayoutDecorator(
                     new metawidget.layout.TableLayout({ numberOfColumns: 2 })
                 )
-            )
+            ),
+            readOnly: false
         }
-    },
-
-    buildInspector: function () {
-        var inspector, array = [];
-        if (this.props.addInspectors) {
-            array = array.concat(this.props.inspector, this.props.addInspectors);
-            inspector = new metawidget.inspector.CompositeInspector(array);
-        }
-        else {
-            inspector = this.props.inspector;
-        }
-        return inspector;
-    },
-
-    buildWidgetBuilder: function () {
-        var widgetBuilder, array = [];
-        if (this.props.addWidgetBuilders) {
-            array = array.concat(this.props.widgetBuilder, this.props.addWidgetBuilders);
-            widgetBuilder = new metawidget.widgetBuilder.CompositeWidgetBuilder(array);
-        }
-        else {
-            widgetBuilder = this.props.widgetBuilder;
-        }
-        return widgetBuilder;
-    },
-
-    buildWidgetProcessors: function () {
-        var widgetProcessors = this.props.widgetProcessors;
-        if (this.props.addWidgetProcessors) {
-            widgetProcessors = widgetProcessors.concat(this.props.addWidgetProcessors);
-        }
-        return widgetProcessors;
     },
 
     componentDidMount: function () {
         this.mw = new metawidget.react.ReactMetawidget(
-            this.refs.metawidget, {
-                inspector: this.buildInspector(),
-                widgetBuilder: this.buildWidgetBuilder(),
-                widgetProcessors: this.buildWidgetProcessors(),
-                layout: this.props.layout
-            }
+            this.refs.metawidget, {...this.props}
         );
+
         this.mw.toInspect = this.props.toInspect;
+        this.mw.readOnly = this.props.readOnly;
 
         this.mw.buildWidgets();
     },
