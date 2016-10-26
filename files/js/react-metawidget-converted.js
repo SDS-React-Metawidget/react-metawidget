@@ -260,7 +260,7 @@ metawidget.react.ReactMetawidget = function (element, config) {
         }).save(t);
     };
 
-    if (_pipeline.maximumInspectionDepth == 10) {
+    if (_pipeline.maximumInspectionDepth === 10) {
         var b = document.createElement("button");
         b.innerHTML = "Save changes into toInspect";
         b.onclick = this.save;
@@ -629,12 +629,10 @@ var MetaWidget = React.createClass({
     propTypes: {
         toInspect: React.PropTypes.object,
         inspector: React.PropTypes.object,
-        addInspectors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         widgetBuilder: React.PropTypes.object,
-        addWidgetBuilders: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
         widgetProcessors: React.PropTypes.arrayOf(React.PropTypes.object),
-        addWidgetProcessors: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.arrayOf(React.PropTypes.object)]),
-        layout: React.PropTypes.object
+        layout: React.PropTypes.object,
+        readOnly: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
@@ -643,7 +641,8 @@ var MetaWidget = React.createClass({
             inspector: new metawidget.inspector.PropertyTypeInspector(),
             widgetBuilder: new metawidget.react.widgetbuilder.ReactWidgetBuilder(),
             widgetProcessors: [new metawidget.react.widgetprocessor.IdProcessor(), new metawidget.react.widgetprocessor.RequiredAttributeProcessor(), new metawidget.react.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.react.widgetprocessor.DisabledAttributeProcessor(), new metawidget.react.widgetprocessor.MaxLengthAttributeProcessor(), new metawidget.react.widgetprocessor.MaxAttributeProcessor(), new metawidget.react.widgetprocessor.MinAttributeProcessor(), new metawidget.react.widgetprocessor.ValueAttributeProcessor()],
-            layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 })))
+            layout: new metawidget.react.layout.ReactRenderDecorator(new metawidget.layout.HeadingTagLayoutDecorator(new metawidget.layout.TableLayout({ numberOfColumns: 2 }))),
+            readOnly: false
         };
     },
 
@@ -680,13 +679,10 @@ var MetaWidget = React.createClass({
     },
 
     componentDidMount: function () {
-        this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, {
-            inspector: this.buildInspector(),
-            widgetBuilder: this.buildWidgetBuilder(),
-            widgetProcessors: this.buildWidgetProcessors(),
-            layout: this.props.layout
-        });
+        this.mw = new metawidget.react.ReactMetawidget(this.refs.metawidget, _extends({}, this.props));
+
         this.mw.toInspect = this.props.toInspect;
+        this.mw.readOnly = this.props.readOnly;
 
         this.mw.buildWidgets();
     },
