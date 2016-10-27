@@ -18,7 +18,7 @@ var schema2Object = {
     buttonSave: function() {reactWidget.mw.save();},
     submit: function() {console.log("Submit")},
     checkbox: true,
-    date: "",
+    date: "12/12/12",
     number: 12,
     numberInteger: 24,
     password: "SHould be masked",
@@ -94,7 +94,7 @@ var reactWidget = ReactDOM.render(
                 new metawidget.react.widgetbuilder.RatingWidgetBuilder()
             ])
         }
-        readOnly={true}
+        //readOnly={true}
     />,
     document.getElementById("metawidget")
 )

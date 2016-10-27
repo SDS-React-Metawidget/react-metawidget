@@ -195,8 +195,16 @@ var Output = React.createClass({
     render: function () {
         return (
             <output>
-                {this.props.value}
+                {this.props.value + ""}
             </output>
+        );
+    }
+});
+
+var Stub = React.createClass({
+    render: function () {
+        return (
+            <stub/>
         );
     }
 });
@@ -320,10 +328,6 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
     }
 
     this.buildWidget = function (elementName, attributes, mw) {
-
-        if (metawidget.util.isTrueOrTrueString(attributes.hidden)) {
-            return metawidget.util.createElement(mw, 'stub');
-        }
 
         if (attributes.type) {
             var properties = {
@@ -475,9 +479,22 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 },
                 output: {
                     parameters: {
-                        readOnly: (e) => e === true
+                        readOnly: (e) => metawidget.util.isTrueOrTrueString(e)
                     },
                     result: [Output, {}]
+                },
+                stubReadOnlyButton: {
+                    parameters: {
+                        type: (e) => e === "function",
+                        readOnly: (e) => metawidget.util.isTrueOrTrueString(e)
+                    },
+                    result: [Stub, {}]
+                },
+                hidden: {
+                    parameters: {
+                        hidden: (e) => metawidget.util.isTrueOrTrueString(e),
+                    },
+                    result: [Stub, {}]
                 }
             }
 
@@ -491,7 +508,6 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
 
             if(Element == null)
                 return undefined;
-            // var fromArr = arr[attributes.type];
             if (Element) {
                 var ElementType = Element[0];
                 var uniqueElementProps = Element[1];
