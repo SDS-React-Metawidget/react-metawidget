@@ -94,7 +94,7 @@ var reactWidget = ReactDOM.render(
                 new metawidget.react.widgetbuilder.RatingWidgetBuilder()
             ])
         }
-        //readOnly={true}
+        readOnly={true}
     />,
     document.getElementById("metawidget")
 )
