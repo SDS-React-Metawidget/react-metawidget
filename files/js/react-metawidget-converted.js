@@ -6,7 +6,7 @@ var DOMProperties = ["accept", "acceptCharset", "accessKey", "action", "allowFul
 //Disallow "value" and "checked", as they are explicitly handled
 var dontCheckProperties = ["checked", "value", "metawidgetAttributes"];
 
-var DOMEvents = ["onCopy", "onCut", "onPaste", "onCompositionEnd", "onCompositionStart", "onCompositionUpdate", "onKeyDown", "onKeyPress", "onKeyUp", "onFocus", "onBlur",, /*"onChange"*/"onInput", "onSubmit", "onClick", "onContextMenu", "onDoubleClick", "onDrag", "onDragEnd", "onDragEnter", "onDragExit", "onDragLeave", "onDragOver", "onDragStart", "onDrop", "onMouseDown", "onMouseEnter", "onMouseLeave	onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onTouchCancel", "onTouchEnd", "onTouchMove", "onTouchStart", "onScroll", "onWheel", "onAbort", "onCanPlay", "onCanPlayThrough", "onDurationChange", "onEmptied", "onEncrypted", "onEnded", "onError", "onLoadedData", "onLoadedMetadata", "onLoadStart", "onPause", "onPlay", "onPlaying", "onProgress", "onRateChange", "onSeeked", "onSeeking", "onStalled", "onSuspend", "onTimeUpdate", "onVolumeChange", "onWaiting", "onLoad", "onError", "onAnimationStart", "onAnimationEnd", "onAnimationIteration", "onTransitionEnd"];
+var DOMEvents = ["onCopy", "onCut", "onPaste", "onCompositionEnd", "onCompositionStart", "onCompositionUpdate", "onKeyDown", "onKeyPress", "onKeyUp", "onFocus", "onBlur",, /*"onChange"*/"onInput", "onSubmit", "onClick", "onContextMenu", "onDoubleClick", "onDrag", "onDragEnd", "onDragEnter", "onDragExit", "onDragLeave", "onDragOver", "onDragStart", "onDrop", "onMouseDown", "onMouseEnter", "onMouseLeave    onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onTouchCancel", "onTouchEnd", "onTouchMove", "onTouchStart", "onScroll", "onWheel", "onAbort", "onCanPlay", "onCanPlayThrough", "onDurationChange", "onEmptied", "onEncrypted", "onEnded", "onError", "onLoadedData", "onLoadedMetadata", "onLoadStart", "onPause", "onPlay", "onPlaying", "onProgress", "onRateChange", "onSeeked", "onSeeking", "onStalled", "onSuspend", "onTimeUpdate", "onVolumeChange", "onWaiting", "onLoad", "onError", "onAnimationStart", "onAnimationEnd", "onAnimationIteration", "onTransitionEnd"];
 //Disallow "onChange" as it is explicitly handled
 var dontCheckEvents = ["onChange"];
 
@@ -388,15 +388,10 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                 },
                 radio: {
                     parameters: {
-                        componentType: e => e === 'radio'
+                        componentType: e => e === 'radio',
+                        enum: e => e !== undefined
                     },
                     result: [Radio, { options: attributes["enum"] }]
-                },
-                rating: {
-                    parameters: {
-                        type: e => e === 'rating'
-                    },
-                    result: [Rating, {}]
                 },
                 output: {
                     parameters: {
@@ -411,8 +406,9 @@ metawidget.react.widgetbuilder.ReactWidgetBuilder = function (config) {
                     if (!elements[element].parameters[param](attributes[param])) return prev;
                 }
                 return elements[element].result;
-            }, elements.textInput.result);
+            }, null);
 
+            if (Element == null) return undefined;
             // var fromArr = arr[attributes.type];
             if (Element) {
                 var ElementType = Element[0];
