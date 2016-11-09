@@ -841,6 +841,11 @@ var MetaWidget = React.createClass({
         this.metawidget.mw = this.mw;
     },
 
+    componentWillUpdate: function(nextProps) {
+        if (nextProps.readOnly)
+            this.mw.readOnly = nextProps.readOnly;
+    },
+
     render: function () {
         return <div id="mwContainer" ref={div => this.metawidget = div}/>
     }
