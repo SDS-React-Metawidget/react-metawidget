@@ -842,8 +842,12 @@ var MetaWidget = React.createClass({
     },
 
     componentWillUpdate: function(nextProps) {
-        if (nextProps.readOnly)
+        console.log(nextProps)
+        if (nextProps.readOnly !== this.props.readOnly) {
             this.mw.readOnly = nextProps.readOnly;
+            this.mw.buildWidgets();
+            console.log(this.mw);
+        }
     },
 
     render: function () {
