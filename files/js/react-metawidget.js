@@ -140,7 +140,17 @@ var TextAreaInput = React.createClass({
 });
 
 var Select = React.createClass({
+    getInitialState: function () {
+        return {
+            value: this.props.value || this.props.options[0],
+        };
+    },
+    
     onChange: function (e) {
+        this.setState({
+            value: e.target.value,
+        });
+        
         if (this.props.onChange)
             this.props.onChange(e.target.value);
     },
@@ -151,7 +161,7 @@ var Select = React.createClass({
         });
 
         return (
-            <select onChange={this.onChange}>
+            <select onChange={this.onChange} value={this.state.value}>
                 {options}
             </select>
         );
@@ -160,7 +170,7 @@ var Select = React.createClass({
 
 var Radio = React.createClass({
     getInitialState: function () {
-        return { selectedOption: "1" };
+        return { selectedOption: this.props.value || this.props.options[0] };
     },
 
     onChange: function (e) {
@@ -169,15 +179,15 @@ var Radio = React.createClass({
         });
 
         if (this.props.onChange)
-            this.props.onChange(this.props.options[e.target.value]);
+            this.props.onChange(e.target.value);
     },
 
     render: function () {
         var options = this.props.options.map(function (option, i) {
             return (
                 <label key={i}>
-                    <input type="radio" value={i + ""} name={this.props.label}
-                           checked={this.state.selectedOption === (i + "")}
+                    <input type="radio" value={option} name={this.props.label}
+                           checked={option === this.state.selectedOption}
                            onChange={this.onChange}/> {option}
                 </label>
             )

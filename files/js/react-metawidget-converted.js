@@ -96,7 +96,17 @@ var TextAreaInput = React.createClass({
 });
 
 var Select = React.createClass({
+    getInitialState: function () {
+        return {
+            value: this.props.value || this.props.options[0]
+        };
+    },
+
     onChange: function (e) {
+        this.setState({
+            value: e.target.value
+        });
+
         if (this.props.onChange) this.props.onChange(e.target.value);
     },
 
@@ -111,7 +121,7 @@ var Select = React.createClass({
 
         return React.createElement(
             "select",
-            { onChange: this.onChange },
+            { onChange: this.onChange, value: this.state.value },
             options
         );
     }
@@ -119,7 +129,7 @@ var Select = React.createClass({
 
 var Radio = React.createClass({
     getInitialState: function () {
-        return { selectedOption: "1" };
+        return { selectedOption: this.props.value || this.props.options[0] };
     },
 
     onChange: function (e) {
@@ -127,7 +137,7 @@ var Radio = React.createClass({
             selectedOption: e.target.value
         });
 
-        if (this.props.onChange) this.props.onChange(this.props.options[e.target.value]);
+        if (this.props.onChange) this.props.onChange(e.target.value);
     },
 
     render: function () {
@@ -135,8 +145,8 @@ var Radio = React.createClass({
             return React.createElement(
                 "label",
                 { key: i },
-                React.createElement("input", { type: "radio", value: i + "", name: this.props.label,
-                    checked: this.state.selectedOption === i + "",
+                React.createElement("input", { type: "radio", value: option, name: this.props.label,
+                    checked: option === this.state.selectedOption,
                     onChange: this.onChange }),
                 " ",
                 option
@@ -271,7 +281,8 @@ metawidget.react.ReactMetawidget = function (element, config) {
     this.save = function () {
 
         return _pipeline.getWidgetProcessor(function (widgetProcessor) {
-            return widgetProcessor instanceof metawidget.react.widgetprocessor.ReactBindingProcessor;
+            var saveFunction = widgetProcessor.save;
+            return typeof saveFunction === 'function';
         }).save(t);
     };
 };
@@ -718,6 +729,15 @@ var MetaWidget = React.createClass({
 
         this.mw.buildWidgets();
         this.metawidget.mw = this.mw;
+    },
+
+    componentWillUpdate: function (nextProps) {
+        console.log(nextProps);
+        if (nextProps.readOnly !== this.props.readOnly) {
+            this.mw.readOnly = nextProps.readOnly;
+            this.mw.buildWidgets();
+            console.log(this.mw);
+        }
     },
 
     render: function () {

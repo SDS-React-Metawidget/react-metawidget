@@ -24,7 +24,8 @@ var schema2Object = {
     password: "SHould be masked",
     range: 5,
     text: "Normal Text",
-    select: "A",
+    select: "B",
+    radio: "C",
     textarea: "LLLAAARRGEE",
     rating: 4
 }
@@ -64,6 +65,11 @@ var schema2 = {
         },
         select: {
             type: "select",
+            enum: ["A","B","C"]
+        },
+        radio: {
+            type: "select",
+            componentType: "radio",
             enum: ["A","B","C"]
         },
         textarea: {
